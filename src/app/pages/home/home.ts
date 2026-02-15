@@ -1,18 +1,21 @@
 import { Component, inject } from '@angular/core';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, query } from '@angular/fire/firestore'; // <--- 1. AQUÍ AGREGAMOS 'query'
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AsyncPipe, NgFor, NgIf], // ¡IMPORTANTE! Estos permiten procesar los datos de Firebase
+  imports: [AsyncPipe, NgFor, NgIf],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
 export class HomeComponent {
-  private firestore = inject(Firestore); // Inyectamos la base de datos
+  private firestore = inject(Firestore);
   
-  // Creamos el flujo de datos que "escucha" la colección 'recipes'
-  recipes$: Observable<any[]> = collectionData(collection(this.firestore, 'recipes'), { idField: 'id' });
+
+  recipes$: Observable<any[]> = collectionData(
+    query(collection(this.firestore, 'recipes')), 
+    { idField: 'id' }
+  );
 }
