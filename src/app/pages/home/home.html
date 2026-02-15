@@ -1,11 +1,15 @@
   <section class="relative bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
-    <div class="relative max-w-7xl mx-auto text-center">
-      <h2 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-6xl">
-        Descubre el placer de <span class="text-chefly-orange">cocinar en casa</span>
+    <div class="relative max-w-7xl mx-auto text-center flex flex-col items-center">
+    
+    <div class="w-max">
+      <h2 class="animate-typing text-4xl tracking-tight font-extrabold text-gray-900 sm:text-6xl pr-2">
+        Descubre el placer de <span class="text-chefly-orange">cocinar en casa                    .</span>
       </h2>
-      <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
-        Miles de recetas saludables, deliciosas y fáciles de preparar para cada ocasión.
-      </p>
+    </div>
+
+    <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
+      Miles de recetas saludables, deliciosas y fáciles de preparar para cada ocasión.
+    </p>
 
       <div class="mt-10 max-w-xl mx-auto">
         <div class="flex items-center bg-white rounded-2xl shadow-xl p-2 border border-gray-100">
@@ -28,7 +32,7 @@
 
 <div class="max-w-7xl mx-auto px-4 pt-8">
   <div class="flex items-center gap-2 mb-6">
-    <span class="text-2xl text-orange-500">📈</span>
+    <span class="text-2xl text-orange-500"></span>
     <h2 class="text-2xl font-bold text-gray-900">Recetas Mejor Calificadas</h2>
   </div>
 
@@ -49,13 +53,15 @@
         <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-end">
           
           <div class="flex gap-2 mb-4">
-            <span class="bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-              {{ recipe.category }}
-            </span>
-            <span class="bg-red-400/80 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-              {{ recipe.difficulty }}
-            </span>
-          </div>
+  <span class="bg-orange-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+    {{ recipe.category }}
+  </span>
+
+  <span [ngClass]="getDifficultyStyle(recipe.difficulty)" 
+        class="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border backdrop-blur-sm">
+    {{ recipe.difficulty }}
+  </span>
+</div>
 
           <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-3">
             {{ recipe.title }}
@@ -82,12 +88,88 @@
             </div>
           </div>
 
-          <a [routerLink]="['/recipe', recipe.id]" class="absolute inset-0 z-10 cursor-pointer"></a>
+         <a [routerLink]="recipe.id ? ['/recipe', recipe.id] : []" 
+   (click)="recipe.id && trackView(recipe.id)" 
+   class="absolute inset-0 z-10 cursor-pointer">
+</a>
         </div>
       </div>
     </swiper-slide>
   </swiper-container>
 </div>
+
+
+<div class="max-w-7xl mx-auto px-4 py-8" *ngIf="tip$ | async as tip">
+  <div class="bg-blue-50 border border-blue-100 rounded-3xl p-8 shadow-sm">
+    
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-xl">💡</span>
+      <h3 class="text-blue-800 font-bold text-lg">Tip del Día</h3>
+    </div>
+
+    <p class="text-blue-900 text-lg mb-8 leading-relaxed">
+      {{ tip.text }}
+    </p>
+
+    <hr class="border-blue-100 mb-6">
+
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      
+    <div class="flex gap-4">
+  <button (click)="tip.id && reactToTip(tip.id, 'love')" 
+          [disabled]="tip.id ? getSavedReaction(tip.id) !== null : false"
+          [ngClass]="{
+            'bg-red-500 text-white border-red-500': tip.id && getSavedReaction(tip.id) === 'love',
+            'bg-white text-blue-900 opacity-50 grayscale': tip.id && getSavedReaction(tip.id) && getSavedReaction(tip.id) !== 'love'
+          }"
+          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all shadow-sm">
+    <span>❤️</span> <span class="font-bold">{{ tip.reactions?.love || 0 }}</span>
+  </button>
+
+  <button (click)="tip.id && reactToTip(tip.id, 'like')" 
+          [disabled]="tip.id ? getSavedReaction(tip.id) !== null : false"
+          [ngClass]="{
+            'bg-blue-600 text-white border-blue-600': tip.id && getSavedReaction(tip.id) === 'like',
+            'bg-white text-blue-900 opacity-50 grayscale': tip.id && getSavedReaction(tip.id) && getSavedReaction(tip.id) !== 'like'
+          }"
+          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all shadow-sm">
+    <span>👍</span> <span class="font-bold">{{ tip.reactions?.like || 0 }}</span>
+  </button>
+
+  <button (click)="tip.id && reactToTip(tip.id, 'wow')" 
+          [disabled]="tip.id ? getSavedReaction(tip.id) !== null : false"
+          [ngClass]="{
+            'bg-yellow-500 text-white border-yellow-500': tip.id && getSavedReaction(tip.id) === 'wow',
+            'bg-white text-blue-900 opacity-50 grayscale': tip.id && getSavedReaction(tip.id) && getSavedReaction(tip.id) !== 'wow'
+          }"
+          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all shadow-sm">
+    <span>😮</span> <span class="font-bold">{{ tip.reactions?.wow || 0 }}</span>
+  </button>
+</div>
+
+      <div class="flex-1 max-w-md flex gap-2">
+        <input #commentInput type="text" placeholder="Escribe tu comentario..." 
+               class="flex-1 px-4 py-2 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-300 text-sm">
+        <button (click)="addComment(tip.id, commentInput)" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition">
+          Publicar
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-8 space-y-4" *ngIf="tip.comments?.length">
+      <div *ngFor="let c of tip.comments.slice(-3)" class="bg-white/50 p-4 rounded-2xl">
+        <div class="flex justify-between mb-1">
+          <span class="font-bold text-blue-900 text-sm">{{ c.userName }}</span>
+        </div>
+        <p class="text-blue-800 text-sm">{{ c.text }}</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 
 
 
@@ -101,15 +183,15 @@
          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group relative">
       
       <div class="relative h-56 overflow-hidden">
-        <img [src]="recipe.imageUrl || 'https://via.placeholder.com/400x300?text=Sin+Imagen'" 
-             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-             alt="{{ recipe.title }}"
-             onerror="this.src='https://via.placeholder.com/400x300?text=Error'">
-        
-        <div class="absolute top-4 right-4 bg-amber-100/90 backdrop-blur-sm text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-          {{ recipe.difficulty || 'Intermedio' }}
-        </div>
-      </div>
+  <img [src]="recipe.imageUrl || 'https://via.placeholder.com/400x300?text=Sin+Imagen'" 
+       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+       alt="{{ recipe.title }}">
+  
+  <div [ngClass]="getDifficultyStyle(recipe.difficulty)" 
+       class="absolute top-4 right-4 backdrop-blur-sm text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border">
+    {{ recipe.difficulty || 'Intermedio' }}
+  </div>
+</div>
 
       <div class="p-5 flex-1 flex flex-col">
         
@@ -145,7 +227,11 @@
 
         </div>
 
-        <a [routerLink]="['/recipe', recipe.id]" class="absolute inset-0 z-10 cursor-pointer"></a>
+        <a [routerLink]="recipe.id ? ['/recipe', recipe.id] : []" 
+   (click)="recipe.id && trackView(recipe.id)"
+   class="block w-full text-center mt-auto py-2 px-4 border border-chefly-orange text-chefly-orange rounded-lg font-semibold hover:bg-chefly-orange hover:text-white transition-colors cursor-pointer">
+  Ver Receta
+</a>
 
       </div>
     </div>
