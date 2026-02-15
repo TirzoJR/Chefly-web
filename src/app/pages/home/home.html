@@ -1,1 +1,47 @@
-<p>home works!</p>
+    <section class="relative bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
+    <div class="relative max-w-7xl mx-auto text-center">
+        <h2 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-6xl">
+        Descubre el placer de <span class="text-chefly-orange">cocinar en casa</span>
+        </h2>
+        <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
+        Miles de recetas saludables, deliciosas y fáciles de preparar para cada ocasión.
+        </p>
+
+        <div class="mt-10 max-w-xl mx-auto">
+        <div class="flex items-center bg-white rounded-2xl shadow-xl p-2 border border-gray-100">
+            <input type="text" 
+                class="flex-1 px-4 py-3 text-gray-700 focus:outline-none text-lg" 
+                placeholder="¿Qué quieres cocinar hoy?">
+            <button class="bg-chefly-orange text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-600 transition-all">
+            Buscar
+            </button>
+        </div>
+        </div>
+
+        <div class="mt-12 flex flex-wrap justify-center gap-4">
+        <span class="px-6 py-2 bg-white border border-gray-200 rounded-full text-gray-600 cursor-pointer hover:border-chefly-orange hover:text-chefly-orange transition-colors">🍳 Desayuno</span>
+        <span class="px-6 py-2 bg-white border border-gray-200 rounded-full text-gray-600 cursor-pointer hover:border-chefly-orange hover:text-chefly-orange transition-colors">🥗 Ensaladas</span>
+        <span class="px-6 py-2 bg-white border border-gray-200 rounded-full text-gray-600 cursor-pointer hover:border-chefly-orange hover:text-chefly-orange transition-colors">🍰 Postres</span>
+        </div>
+    </div>
+    
+    </section>
+   <div class="max-w-7xl mx-auto px-4 py-12">
+  <h3 class="text-2xl font-bold text-gray-900 mb-8">Recetas Recientes</h3>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div *ngFor="let recipe of recipes$ | async" 
+         class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+      <img [src]="recipe.image" class="w-full h-48 object-cover" alt="Receta">
+      <div class="p-6">
+        <span class="text-chefly-orange text-xs font-bold uppercase tracking-wider">{{ recipe.category }}</span>
+        <h4 class="text-xl font-bold text-gray-900 mt-2">{{ recipe.title }}</h4>
+        <p class="text-gray-500 mt-2 text-sm">{{ recipe.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="(recipes$ | async)?.length === 0" class="text-center py-20">
+    <p class="text-gray-400">No se encontraron recetas en Firestore.</p>
+  </div>
+</div>
