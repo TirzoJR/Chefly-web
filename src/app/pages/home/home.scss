@@ -30,3 +30,45 @@ h2 {
   border-right: 4px solid #f97316; // El cursor de la escritura
   animation: typing 3s steps(30) infinite alternate, blink .7s infinite;
 }
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+.typing-container {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 4px solid #f97316; // Cursor naranja
+  animation: typing 2s steps(20) infinite alternate, blink .7s infinite;
+  vertical-align: bottom;
+}
+section.sticky {
+  // Asegura que el contenido no se desborde y la animación de tipado se vea bien
+  overflow: hidden;
+  
+  // Sombra para que se note cuando una sección empieza a cubrir a la otra
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    box-shadow: inset 0 10px 20px -10px rgba(0,0,0,0.3);
+    pointer-events: none;
+  }
+}
+
+// Mantener tu animación de typing que configuramos antes
+.animate-typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 4px solid #f97316;
+  animation: typing 3s steps(30) infinite alternate, blink .7s infinite;
+}

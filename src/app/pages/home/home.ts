@@ -29,7 +29,9 @@ register();
   styleUrl: './home.scss'
 })
 export class HomeComponent {
+  
   private firestore = inject(Firestore);
+  titles$: Observable<string[]>;
   
   // Observables para la UI
   featuredRecipes$: Observable<Recipe[]>;
@@ -55,6 +57,9 @@ export class HomeComponent {
       limit(5)
     );
     this.featuredRecipes$ = collectionData(featuredQuery, { idField: 'id' }) as Observable<Recipe[]>;
+    this.featuredRecipes$ = collectionData(featuredQuery, { idField: 'id' }).pipe(
+  map(recipes => recipes.slice(0, 4)) // Solo tomamos 4 para el abanico
+) as Observable<Recipe[]>;
 
     // 2. Grid: Todas las recetas
     this.recipes$ = collectionData(query(recipesCol), { idField: 'id' }) as Observable<Recipe[]>;
@@ -76,6 +81,9 @@ export class HomeComponent {
         return tips[tipIndex];
       })
     );
+    this.titles$ = this.featuredRecipes$.pipe(
+    map(recipes => recipes.map(r => r.title))
+  );
   }
 
   // --- MÉTODOS AUXILIARES ---

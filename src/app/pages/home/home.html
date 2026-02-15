@@ -1,15 +1,19 @@
   <section class="relative bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
     <div class="relative max-w-7xl mx-auto text-center flex flex-col items-center">
-    
-    <div class="w-max">
-      <h2 class="animate-typing text-4xl tracking-tight font-extrabold text-gray-900 sm:text-6xl pr-2">
-        Descubre el placer de <span class="text-chefly-orange">cocinar en casa                    .</span>
-      </h2>
-    </div>
+  <h2 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-6xl mb-4">
+    Cocina hoy mismo:
+  </h2>
+  
+  <div class="w-max h-20">
+    <ng-container *ngIf="titles$ | async as titles">
+      <h1 class="typing-container text-chefly-orange text-5xl md:text-7xl font-bold">
+        {{ titles[0] }} </h1>
+    </ng-container>
+  </div>
 
-    <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
-      Miles de recetas saludables, deliciosas y fáciles de preparar para cada ocasión.
-    </p>
+  <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
+    Miles de recetas saludables basadas en tus preferencias.
+  </p>
 
       <div class="mt-10 max-w-xl mx-auto">
         <div class="flex items-center bg-white rounded-2xl shadow-xl p-2 border border-gray-100">
@@ -29,6 +33,60 @@
       </div>
     </div>
   </section>
+
+<section class="bg-white overflow-hidden py-24 w-full">
+  <div class="px-8 mb-20 text-center">
+    <h2 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-4 tracking-tighter">
+      Recomendaciones de <span class="text-chefly-orange">Chefly</span>
+    </h2>
+    <p class="text-gray-500 text-xl font-medium">Basado en la actividad de nuestra comunidad</p>
+  </div>
+
+  <div class="relative h-[650px] w-full flex items-center justify-center overflow-x-hidden mb-12">
+    
+    <ng-container *ngFor="let recipe of recipes$ | async; let i = index">
+      <div *ngIf="i < 6"
+           class="absolute transition-all duration-700 ease-out group cursor-pointer"
+           [style.left.%]="10 + (i * 14)" 
+           [style.transform]="'rotate(' + (i % 2 === 0 ? 3 : -3) + 'deg)'"
+           [style.z-index]="i"> <a [routerLink]="['/recipe', recipe.id]" 
+           class="block w-[260px] h-[380px] md:w-[320px] md:h-[480px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[10px] border-white transition-all duration-500 group-hover:-translate-y-20 group-hover:scale-105 group-hover:rotate-0 group-hover:!z-[100] group-hover:shadow-orange-200">
+          
+          <img [src]="recipe.imageUrl" class="w-full h-full object-cover" [alt]="recipe.title">
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
+            <span class="bg-chefly-orange text-[10px] font-bold px-3 py-1 rounded-full w-max mb-3 uppercase tracking-widest">
+              {{ recipe.category }}
+            </span>
+            <h4 class="text-2xl font-bold leading-tight mb-2">{{ recipe.title }}</h4>
+            <div class="flex items-center gap-3">
+              <span class="flex items-center gap-1 text-sm font-bold">
+                <span class="text-yellow-400 text-base">★</span> {{ recipe.rating }}
+              </span>
+              <span class="text-white/60 text-sm">|</span>
+              <span class="text-white/80 text-sm font-medium">⏱️ {{ recipe.prepTime }} min</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="flex justify-center mt-8 relative z-[110]">
+    <a routerLink="/recipes" class="group flex items-center gap-3 bg-gray-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-chefly-orange transition-all duration-300 shadow-2xl">
+      Ver todo el recetario
+      <span class="group-hover:translate-x-2 transition-transform">→</span>
+    </a>
+  </div>
+</section>
+
+
+
+
+
+
+
+  
 
 <div class="max-w-7xl mx-auto px-4 pt-8">
   <div class="flex items-center gap-2 mb-6">
