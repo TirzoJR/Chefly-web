@@ -1,0 +1,64 @@
+    <div class="bg-gray-50 min-h-screen pb-12">
+    <div *ngIf="!(recipe$ | async)" class="text-center py-20">
+        <p class="text-gray-500">Cargando receta...</p>
+    </div>
+
+    <div *ngIf="recipe$ | async as recipe" class="max-w-4xl mx-auto bg-white shadow-xl rounded-b-3xl overflow-hidden">
+        
+        <div class="relative h-96">
+        <img [src]="recipe.imageUrl" class="w-full h-full object-cover" alt="{{ recipe.title }}">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        
+        <a routerLink="/" class="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full hover:bg-white/30 transition">
+            ← Volver
+        </a>
+
+        <div class="absolute bottom-8 left-8 text-white">
+            <span class="bg-chefly-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 inline-block">
+            {{ recipe.category }}
+            </span>
+            <h1 class="text-4xl font-bold">{{ recipe.title }}</h1>
+        </div>
+        </div>
+
+        <div class="p-8">
+        <div class="flex flex-wrap gap-6 border-b border-gray-100 pb-8 mb-8 text-gray-600">
+            <div class="flex items-center gap-2">
+            <span>⏱️</span> <strong>{{ recipe.prepTime || 0 }} min</strong>
+            </div>
+            <div class="flex items-center gap-2">
+            <span>👨‍👩‍👧‍👦</span> <strong>{{ recipe.servings || 2 }} porciones</strong>
+            </div>
+            <div class="flex items-center gap-2">
+            <span>🔥</span> <strong>{{ recipe.difficulty || 'Medio' }}</strong>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-12">
+            <div class="md:col-span-1">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Ingredientes</h3>
+            <ul class="space-y-3">
+                <li *ngFor="let ingredient of recipe.ingredients" class="flex items-start gap-3 text-gray-700">
+                <span class="text-chefly-orange mt-1">•</span>
+                {{ ingredient }}
+                </li>
+                <li *ngIf="!recipe.ingredients?.length" class="text-gray-400 italic">No se listaron ingredientes.</li>
+            </ul>
+            </div>
+
+            <div class="md:col-span-2">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Preparación</h3>
+            <div class="space-y-6">
+                <div *ngFor="let step of recipe.steps; let i = index" class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-orange-100 text-chefly-orange rounded-full flex items-center justify-center font-bold">
+                    {{ i + 1 }}
+                </div>
+                <p class="text-gray-700 mt-1">{{ step }}</p>
+                </div>
+                <p *ngIf="!recipe.steps?.length" class="text-gray-400 italic">No hay pasos registrados.</p>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>

@@ -1,0 +1,15 @@
+swiper-container {
+  --swiper-pagination-color: #f97316; /* Tu naranja chefly */
+  --swiper-pagination-bullet-inactive-color: #ffffff;
+  --swiper-pagination-bullet-inactive-opacity: 0.5;
+  --swiper-pagination-bullet-size: 10px;
+  
+  // Mejora el cursor al pasar por el banner
+  cursor: grab;
+  &:active { cursor: grabbing; }
+}
+
+// Estilo para el título de sección con el ícono
+h2 {
+  letter-spacing: -0.025em;
+}
