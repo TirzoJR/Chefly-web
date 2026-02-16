@@ -1,90 +1,106 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-// 1. Importamos herramientas de Firestore
-import { Firestore, collection, query, where, collectionData } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
-import { UserProfile } from '../../models/user.model';
-import { Recipe } from '../../models/recipe.model'; // Asegúrate de importar el modelo Recipe
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth';
+import { Firestore, collection, query, where, collectionData, doc, updateDoc, docData } from '@angular/fire/firestore';
+import { Observable, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './user-profile.html'
 })
-export class UserProfileComponent {
-  
-  private firestore = inject(Firestore); // Inyectamos Firestore
+export class UserProfileComponent implements OnInit {
+  public authService = inject(AuthService);
+  private firestore = inject(Firestore);
 
   activeTab: 'info' | 'recipes' | 'favorites' | 'settings' = 'info';
-  isFollowing: boolean = false;
+  isDarkMode = false;
+  fontSize: 'small' | 'medium' | 'large' = 'medium';
+  isEditingBio: boolean = false;
+  bioText: string = '';
+  readonly BIO_LIMIT = 1000;
 
-  // ID del usuario actual (Simulado por ahora, luego vendrá del Auth)
-  currentUserId = 'user-123'; 
+  user$ = this.authService.user$; 
 
-  // Datos del Perfil (Esto sigue simulado hasta que tengas la colección 'users')
-  user$: Observable<UserProfile> = of({
-    uid: this.currentUserId,
-    displayName: 'María García',
-    email: 'maria.garcia@email.com',
-    photoURL: '', 
-    bio: '🌮 Cocinera mexicana de corazón. ¡La cocina es amor hecho comida!',
-    role: 'admin',
-    level: 'Experto',
-    memberSince: new Date('2024-03-14'),
-    stats: {
-      recipesCount: 12, followersCount: 142, followingCount: 45, favoritesCount: 34, likesReceived: 567
-    },
-    badges: ['chef-estrella', 'top-contributor'],
-    settings: { darkMode: false, fontSize: 'medium', notifications: true }
-  });
+  userData$: Observable<any> = this.user$.pipe(
+    switchMap(user => {
+      if (!user) return of(null);
+      return docData(doc(this.firestore, `users/${user.uid}`));
+    })
+  );
 
-  // 2. Variable para las Recetas REALES (Observable)
-  myRecipes$: Observable<Recipe[]>;
-  
-  // Variable para Favoritos REALES (Observable)
-  myFavorites$: Observable<Recipe[]>;
+  // MIS RECETAS REALES: Basado en tu authorId
+  myRecipes$: Observable<any[]> = this.user$.pipe(
+    switchMap(user => {
+      if (!user) return of([]);
+      const q = query(collection(this.firestore, 'recipes'), where('authorId', '==', user.uid));
+      return collectionData(q, { idField: 'id' });
+    })
+  );
 
-  constructor() {
-    // --- CONSULTA REAL A FIREBASE: MIS RECETAS ---
-    // Buscamos en la colección 'recipes' donde 'authorId' sea igual a mi usuario
-    const recipesRef = collection(this.firestore, 'recipes');
-    
-    // Query para "Mis Recetas"
-    const myRecipesQuery = query(recipesRef, where('authorId', '==', this.currentUserId));
-    this.myRecipes$ = collectionData(myRecipesQuery, { idField: 'id' }) as Observable<Recipe[]>;
+  // FAVORITOS REALES: Basado en el campo 'favorites' de tu perfil
+  favoriteRecipes$: Observable<any[]> = this.userData$.pipe(
+    switchMap(data => {
+      const favIds = data?.favorites || [];
+      if (favIds.length === 0) return of([]);
+      const q = query(collection(this.firestore, 'recipes'), where('id', 'in', favIds));
+      return collectionData(q, { idField: 'id' });
+    })
+  );
 
-    // --- CONSULTA REAL: FAVORITOS ---
-    // (Nota: Esto requiere que tengas un campo o colección de favoritos. 
-    // Por ahora, traeremos las recetas donde el rating sea 5 como ejemplo de "favoritos reales")
-    const favoritesQuery = query(recipesRef, where('rating', '>=', 4.5));
-    this.myFavorites$ = collectionData(favoritesQuery, { idField: 'id' }) as Observable<Recipe[]>;
+  ngOnInit() {
+    this.isDarkMode = localStorage.getItem('theme') === 'dark';
+    this.fontSize = (localStorage.getItem('fontSize') as any) || 'medium';
+    this.applyTheme();
+
+    this.userData$.subscribe(data => {
+      if (data?.bio) this.bioText = data.bio;
+    });
   }
 
-  setActiveTab(tab: any) {
-    this.activeTab = tab;
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+    this.applyTheme();
   }
 
-  toggleFollow() {
-    this.isFollowing = !this.isFollowing;
+  private applyTheme() {
+    const root = document.documentElement;
+    if (this.isDarkMode) {
+      root.classList.add('dark');
+      document.body.style.backgroundColor = 'oklch(0.145 0 0)';
+    } else {
+      root.classList.remove('dark');
+      document.body.style.backgroundColor = '#F8FAFC';
+    }
+  }
+
+  setFontSize(size: 'small' | 'medium' | 'large') {
+    this.fontSize = size;
+    localStorage.setItem('fontSize', size);
+  }
+
+  toggleEditBio() {
+    this.isEditingBio = !this.isEditingBio;
+  }
+
+  async saveBio(uid: string) {
+    try {
+      await updateDoc(doc(this.firestore, `users/${uid}`), { bio: this.bioText });
+      this.isEditingBio = false;
+    } catch (error) {
+      console.error("Error al guardar la bio:", error);
+    }
   }
 
   logout() {
-    if(confirm('¿Estás seguro de cerrar sesión?')) console.log('Cerrando...');
+    if (confirm('¿Estás seguro de cerrar sesión?')) this.authService.logout();
   }
 
-  // Helpers visuales
-  getInitials(name: string): string {
-    return name ? name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() : '';
-  }
-
-  getBadgeIcon(badge: string): string {
-    const icons: any = { 'chef-estrella': '⭐', 'top-contributor': '🏆', 'foodie': '🍔' };
-    return icons[badge] || '🎖️';
-  }
-
-  getBadgeLabel(badge: string): string {
-    return badge.replace('-', ' ').toUpperCase();
+  getInitials(name: string | null): string {
+    return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U';
   }
 }
