@@ -1,266 +1,230 @@
-    <div *ngIf="recipe$ | async as recipe" class="min-h-screen bg-gray-50 font-sans text-gray-800 pb-20">
+<div *ngIf="recipe$ | async as recipe" class="min-h-screen bg-chefly-gray dark:bg-dark-bg font-sans text-gray-800 dark:text-dark-text pb-20 transition-colors duration-300">
+  
+  <div class="max-w-5xl mx-auto px-6 pt-8 action-buttons">
+    <a routerLink="/" class="flex items-center gap-2 text-gray-600 dark:text-dark-secondary hover:text-chefly-orange font-bold transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      Volver
+    </a>
+  </div>
 
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-        <a routerLink="/" class="flex items-center gap-2 text-gray-600 hover:text-orange-500 font-medium transition-colors cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Volver
-        </a>
-        <div class="flex items-center gap-2">
-        <div class="bg-orange-500 text-white p-1.5 rounded-lg">👨‍🍳</div>
-        <span class="text-xl font-bold text-orange-500">RecetasApp</span>
-        </div>
-        <div class="w-8"></div>
-    </nav>
+  <main class="max-w-5xl mx-auto px-6 mt-6" id="recipe-content">
+    <div class="relative w-full h-[450px] rounded-[3rem] overflow-hidden shadow-2xl mb-8 group">
+      <img [src]="recipe.imageUrl" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" [alt]="recipe.title">
+    </div>
 
-    <main class="max-w-5xl mx-auto px-6 mt-8 relative z-10">
-
-        <div class="relative w-full h-[400px] rounded-[2.5rem] overflow-hidden shadow-xl mb-8">
-        <img [src]="recipe.imageUrl" class="w-full h-full object-cover" [alt]="recipe.title">
-        <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-black/60 to-transparent"></div>
-        </div>
-
-        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 mb-10">
-        <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
-            <h1 class="text-3xl md:text-5xl font-black text-gray-900 leading-tight flex-1">
-            {{ recipe.title }}
-            </h1>
-            
-            <div class="flex gap-3 pt-1">
-            <button class="p-3 rounded-full border border-gray-100 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-            </button>
-            <button class="p-3 rounded-full border border-gray-100 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 hover:border-yellow-200 transition-all">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8l-2 2H5a2 2 0 01-2-2zM12 7V3m0 0l-3 3m3-3l3 3"></path></svg>
-            </button>
-            <button class="p-3 rounded-full border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            </button>
-            </div>
-        </div>
-
-        <p class="text-gray-600 text-lg mb-8 leading-relaxed">{{ recipe.description }}</p>
-
-        <div class="flex flex-wrap gap-3 mb-8">
-            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">🥘 {{ recipe.category }}</span>
-            <span [ngClass]="getDifficultyStyle(recipe.difficulty)" class="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border">⚡ {{ recipe.difficulty }}</span>
-            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">⏱️ {{ recipe.prepTime }} min</span>
-            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">👥 {{ recipe.servings }} porciones</span>
-            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">👁️ {{ recipe.views }} vistas</span>
-        </div>
-
-        <div class="flex items-center gap-4 pt-6 border-t border-gray-100">
+    <div class="bg-white dark:bg-dark-card rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-dark-border p-8 md:p-12 mb-10">
+      
+      <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-4">
+        <h1 class="text-4xl md:text-6xl font-black text-gray-900 dark:text-dark-text leading-tight flex-1 tracking-tighter">{{ recipe.title }}</h1>
         
-        <div class="flex items-center gap-3">
-          <div *ngIf="recipe.authorPhoto; else defaultAvatar" class="w-12 h-12 rounded-full overflow-hidden shadow-lg border-2 border-orange-100">
-             <img [src]="recipe.authorPhoto" class="w-full h-full object-cover">
-          </div>
-          
-          <ng-template #defaultAvatar>
-             <div class="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center font-black text-xl shadow-lg">
-                {{ recipe.authorName ? recipe.authorName.charAt(0).toUpperCase() : 'A' }}
-             </div>
-          </ng-template>
-
-          <div>
-            <p class="font-black text-gray-900 leading-tight">{{ recipe.authorName || 'Autor Anónimo' }}</p>
-            <a *ngIf="recipe.authorId" [routerLink]="['/profile', recipe.authorId]" class="text-xs text-orange-500 font-bold uppercase hover:underline cursor-pointer">
-               Ver perfil
-            </a>
-          </div>
-        </div>
-
-        <div class="ml-auto flex items-center gap-2">
-            <div class="flex text-yellow-400 text-xl">
-              <ng-container *ngFor="let star of getStars(recipe.rating)">
-                 <span *ngIf="star === 1">★</span>  <span *ngIf="star === 0" class="text-gray-300">★</span> </ng-container>
-            </div>
-            <span class="font-bold text-gray-900 text-lg">{{ recipe.rating }}</span>
-            <span class="text-sm text-gray-400 font-medium">({{ recipe.ratingCount }} vals.)</span>
+        <div class="flex gap-2 action-buttons">
+          <button (click)="onToggleFavorite(recipe.id!)" class="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl border dark:border-dark-border text-pink-500 shadow-sm hover:scale-110 transition-transform">
+            <svg class="w-7 h-7" [attr.fill]="currentUserData?.favorites?.includes(recipe.id) ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+          </button>
+          <button (click)="openReportModal()" class="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl border dark:border-dark-border text-gray-400 hover:text-red-500 shadow-sm hover:scale-110 transition-transform">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+          </button>
+          <button (click)="downloadPDF()" class="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl border dark:border-dark-border text-gray-400 hover:text-blue-500 shadow-sm hover:scale-110 transition-transform">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          </button>
         </div>
       </div>
-        </div>
 
-        <div class="flex mb-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <button (click)="setActiveTab('recipe')" 
-                class="flex-1 py-4 font-black text-lg border-b-4 transition-all flex items-center justify-center gap-2 hover:bg-gray-50"
-                [ngClass]="activeTab === 'recipe' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'">
-            🍳 Receta
-        </button>
-        <button (click)="setActiveTab('comments')" 
-                class="flex-1 py-4 font-black text-lg border-b-4 transition-all flex items-center justify-center gap-2 hover:bg-gray-50"
-                [ngClass]="activeTab === 'comments' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'">
-            💬 Comentarios ({{ (recipe.comments || []).length }})
-        </button>
-        <button (click)="setActiveTab('info')" 
-                class="flex-1 py-4 font-black text-lg border-b-4 transition-all flex items-center justify-center gap-2 hover:bg-gray-50"
-                [ngClass]="activeTab === 'info' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'">
-            👁️ Información
-        </button>
-        </div>
+      <p class="text-gray-600 dark:text-dark-secondary text-xl mb-10 leading-relaxed italic">"{{ recipe.description }}"</p>
 
-        <div *ngIf="activeTab === 'recipe'" class="space-y-10 animate-fadeIn">
-        
-        <section class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
-            <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
-            <div>
-                <h2 class="text-2xl font-black text-gray-900">Ingredientes</h2>
-                <p class="text-gray-500 mt-1">Todo lo que necesitas para {{ recipe.servings }} porciones</p>
-            </div>
-            <button class="bg-black text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-orange-500 transition-all shadow-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                Agregar al Carrito
-            </button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-            <div *ngFor="let item of recipe.ingredients" class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-orange-100 hover:bg-orange-50 transition-colors">
-                <span class="text-orange-500 text-xl font-bold">•</span>
-                <span class="font-bold text-gray-700 text-lg">{{ item }}</span>
-            </div>
-            </div>
-        </section>
+      <div class="flex flex-wrap gap-3 mb-10">
+        <span class="bg-orange-50 dark:bg-orange-900/20 text-chefly-orange px-5 py-2.5 rounded-2xl text-sm font-black border border-orange-100 dark:border-dark-border">🥘 {{ recipe.category }}</span>
+        <span [ngClass]="getDifficultyStyle(recipe.difficulty)" class="px-5 py-2.5 rounded-2xl text-sm font-black border uppercase tracking-wide">⚡ {{ recipe.difficulty }}</span>
+        <span class="bg-gray-100 dark:bg-dark-bg text-gray-700 dark:text-dark-text px-5 py-2.5 rounded-2xl text-sm font-black border dark:border-dark-border">⏱️ {{ recipe.prepTime }} min</span>
+        <span class="bg-gray-100 dark:bg-dark-bg text-gray-700 dark:text-dark-text px-5 py-2.5 rounded-2xl text-sm font-black border dark:border-dark-border">👥 {{ recipe.servings }} porciones</span>
+        <span class="bg-gray-100 dark:bg-dark-bg text-gray-700 dark:text-dark-text px-5 py-2.5 rounded-2xl text-sm font-black border dark:border-dark-border">👁️ {{ recipe.views }} vistas</span>
+      </div>
 
-        <section>
-            <div class="flex justify-between items-end mb-6">
-            <div>
-                <h2 class="text-2xl font-black text-gray-900">Preparación</h2>
-                <p class="text-gray-500 mt-1">Sigue estos pasos para crear tu receta perfecta</p>
-            </div>
-            <span class="text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
-                Progreso: {{ getCompletedCount() }} / {{ (recipe.steps || []).length }}
-            </span>
-            </div>
+      <div class="flex items-center gap-6 pt-10 border-t dark:border-dark-border mb-10">
+        <img [src]="recipe.authorPhoto || 'assets/default-avatar.png'" class="w-20 h-20 rounded-3xl object-cover shadow-xl border-4 border-white dark:border-dark-card">
+        <div>
+          <p class="text-2xl font-black text-gray-900 dark:text-dark-text">{{ recipe.authorName || 'Autor Chefly' }}</p>
+          <p class="text-chefly-orange font-bold text-sm uppercase tracking-tighter">Recetas publicadas: 12</p>
+        </div>
+      </div>
 
-            <div class="space-y-4">
-            <div *ngFor="let step of recipe.steps; let i = index" 
-                class="border rounded-2xl p-6 flex gap-6 transition-all duration-300 cursor-pointer group hover:shadow-md"
-                [ngClass]="isStepCompleted(i) ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-orange-200'"
-                (click)="toggleStep(i)">
-                
-                <div [ngClass]="isStepCompleted(i) ? 'bg-green-500 border-green-500' : 'bg-orange-500 border-orange-500'"
-                    class="flex-shrink-0 w-12 h-12 text-white rounded-full flex items-center justify-center font-black text-xl shadow-lg border-4 transition-colors">
-                <span *ngIf="!isStepCompleted(i)">{{ i + 1 }}</span>
-                <svg *ngIf="isStepCompleted(i)" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                
-                <div class="flex-1 pt-1">
-                <p [ngClass]="isStepCompleted(i) ? 'line-through text-gray-500' : 'text-gray-800'" 
-                    class="text-lg leading-relaxed mb-2 font-medium transition-colors">
-                    {{ step }}
-                </p>
-                <span [ngClass]="isStepCompleted(i) ? 'text-green-600' : 'text-gray-400 group-hover:text-orange-500'" 
-                        class="text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-colors">
-                    {{ isStepCompleted(i) ? '✓ Paso completado' : 'Haz clic para completar' }}
-                </span>
-                </div>
-            </div>
-            </div>
-        </section>
+      <div class="bg-gray-50 dark:bg-dark-bg p-8 rounded-[2rem] border dark:border-dark-border text-center action-buttons">
+        <p class="font-black text-lg mb-4 uppercase tracking-widest text-gray-400">Califica esta receta</p>
+        <div class="flex justify-center text-5xl gap-2 mb-2">
+          <button *ngFor="let s of [1,2,3,4,5]" (click)="rateRecipe(recipe.id!, s)" class="hover:scale-125 transition-transform active:scale-90">
+            <span [class.text-yellow-400]="recipe.rating! >= s" class="text-gray-300">★</span>
+          </button>
         </div>
-
-        <div *ngIf="activeTab === 'comments'" class="space-y-6 animate-fadeIn">
-        <div *ngFor="let comment of (recipe.comments || [])" class="bg-white border-l-4 border-orange-500 rounded-xl p-6 shadow-sm border-t border-r border-b ">
-            <div class="flex items-center gap-3 mb-3">
-                <div [ngClass]="getAvatarColor(comment.userName)" class="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm">
-                    {{ comment.userName.charAt(0) }}
-                </div>
-                <div>
-                    <div class="font-bold text-gray-900">{{ comment.userName }}</div>
-                    <div class="text-xs text-gray-400 font-bold uppercase">15 Feb 2026</div>
-                </div>
-            </div>
-            <p class="text-gray-700 text-lg">{{ comment.text }}</p>
-        </div>
-        
-        <div *ngIf="!(recipe.comments || []).length" class="text-center py-12 bg-white rounded-2xl border border-gray-100">
-            <p class="text-gray-400 font-bold">No hay comentarios todavía.</p>
-        </div>
-        </div>
-
-        <div *ngIf="activeTab === 'info'" class="grid grid-cols-2 gap-6 animate-fadeIn">
-        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
-            <div class="flex items-center gap-2 text-yellow-500 mb-2 font-bold uppercase text-xs tracking-wider">⭐ Calificación</div>
-            <div class="text-4xl font-black text-gray-900">{{ recipe.rating }}</div>
-            <div class="text-xs text-gray-400 mt-1 font-bold">{{ recipe.ratingCount }} votos</div>
-        </div>
-        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
-            <div class="flex items-center gap-2 text-blue-500 mb-2 font-bold uppercase text-xs tracking-wider">👁 Popularidad</div>
-            <div class="text-4xl font-black text-gray-900">{{ recipe.views }}</div>
-            <div class="text-xs text-gray-400 mt-1 font-bold">Vistas totales</div>
-        </div>
-        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
-            <div class="flex items-center gap-2 text-green-500 mb-2 font-bold uppercase text-xs tracking-wider">⏱ Tiempo</div>
-            <div class="text-4xl font-black text-gray-900">{{ recipe.prepTime }}</div>
-            <div class="text-xs text-gray-400 mt-1 font-bold">Minutos</div>
-        </div>
-        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
-            <div class="flex items-center gap-2 text-purple-500 mb-2 font-bold uppercase text-xs tracking-wider">👥 Porciones</div>
-            <div class="text-4xl font-black text-gray-900">{{ recipe.servings }}</div>
-            <div class="text-xs text-gray-400 mt-1 font-bold">Personas</div>
-        </div>
-        <div class="col-span-2 bg-gray-50 rounded-[2rem] p-8 mt-4 grid grid-cols-1 md:grid-cols-3 gap-8 border border-gray-100">
-            <div>
-                <h4 class="font-bold text-gray-900 mb-3">Categoría</h4>
-                <span class="bg-white px-4 py-2 rounded-lg font-bold text-sm border border-gray-200 shadow-sm inline-block">{{ recipe.category }}</span>
-            </div>
-            <div>
-                <h4 class="font-bold text-gray-900 mb-3">Nivel de Dificultad</h4>
-                <span [ngClass]="getDifficultyStyle(recipe.difficulty)" class="px-4 py-2 rounded-lg font-bold text-sm border shadow-sm inline-block">
-                {{ recipe.difficulty }}
-                </span>
-            </div>
-            <div>
-                <h4 class="font-bold text-gray-900 mb-3">Publicada</h4>
-                <span class="text-gray-500 font-medium">15 de febrero de 2026</span>
-            </div>
-        </div>
-        </div>
-
-    </main>
-
-    <footer class="mt-20 py-12 border-t border-gray-200 bg-white text-center">
-        <p class="text-gray-900 font-black text-lg">© 2026 RecetasApp</p>
-        <p class="text-gray-400 font-bold uppercase text-xs mt-2 tracking-widest">Plataforma colaborativa de cocina</p>
-    </footer>
-
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total de calificaciones: [({{ recipe.ratingCount || 0 }})]</p>
+      </div>
     </div>
 
-    <div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
+    <div class="flex mb-8 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden p-1.5 action-buttons">
+      <button (click)="setActiveTab('recipe')" class="flex-1 py-4 font-black text-xs rounded-xl transition-all" [ngClass]="activeTab === 'recipe' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'">RECETA</button>
+      <button (click)="setActiveTab('comments')" class="flex-1 py-4 font-black text-xs rounded-xl transition-all" [ngClass]="activeTab === 'comments' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'">COMENTARIOS</button>
+      <button (click)="setActiveTab('info')" class="flex-1 py-4 font-black text-xs rounded-xl transition-all" [ngClass]="activeTab === 'info' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'">INFORMACIÓN</button>
+    </div>
+
+    <div *ngIf="activeTab === 'recipe'" class="space-y-10 animate-fadeIn">
+      <section class="bg-white dark:bg-dark-card rounded-[2rem] border border-gray-100 dark:border-dark-border p-10">
+        <h2 class="text-2xl font-black text-gray-900 dark:text-dark-text mb-2 italic">Ingredientes</h2>
+        <p class="text-[#6B7280] text-sm mb-8 font-bold italic">Todo lo que necesitas para {{ recipe.servings }} porciones según la receta</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div *ngFor="let item of recipe.ingredients" class="flex items-center gap-4 p-5 bg-[#F9FAFB] dark:bg-dark-bg rounded-2xl border border-transparent hover:border-orange-100 transition-all">
+            <span class="w-8 h-8 rounded-full bg-white dark:bg-dark-card flex items-center justify-center text-chefly-orange font-black shadow-sm">•</span>
+            <span class="font-bold dark:text-dark-text text-lg">{{ item }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-6">
+        <div class="flex justify-between items-end px-4">
+            <h2 class="text-2xl font-black dark:text-dark-text italic">Paso a paso</h2>
+            <span class="text-xs font-black text-accent-success bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-xl border border-green-100">Progreso: {{ getCompletedCount() }} / {{ (recipe.steps || []).length }}</span>
+        </div>
+        <div class="space-y-4">
+            <div *ngFor="let step of recipe.steps; let i = index" (click)="toggleStep(i)" 
+                 class="bg-white dark:bg-dark-card border rounded-[2rem] p-8 flex gap-8 transition-all duration-300 cursor-pointer shadow-sm"
+                 [ngClass]="isStepCompleted(i) ? 'border-accent-success ring-4 ring-green-500/10' : 'border-gray-100 dark:border-dark-border hover:border-chefly-orange'">
+                <div [ngClass]="isStepCompleted(i) ? 'bg-accent-success' : 'bg-chefly-orange'" class="flex-shrink-0 w-14 h-14 text-white rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg">
+                    <span *ngIf="!isStepCompleted(i)">{{ i + 1 }}</span>
+                    <svg *ngIf="isStepCompleted(i)" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <div class="flex-1">
+                    <p [ngClass]="isStepCompleted(i) ? 'line-through opacity-40 italic' : 'dark:text-dark-text'" class="text-xl font-bold transition-all">{{ step }}</p>
+                </div>
+            </div>
+        </div>
+      </section>
+    </div>
+<div *ngIf="activeTab === 'comments'" class="space-y-8 animate-fadeIn action-buttons">
+  
+  <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border dark:border-dark-border" *ngIf="authService.user$ | async as user">
+      <div class="flex gap-4">
+          <img [src]="user.photoURL || 'assets/default-avatar.png'" class="w-12 h-12 rounded-full border-2 border-chefly-orange shadow-lg">
+          <div class="flex-1 relative">
+              <textarea [(ngModel)]="newComment" 
+                        placeholder="Comenta tu experiencia..." 
+                        class="w-full p-5 bg-gray-50 dark:bg-dark-bg rounded-[1.5rem] outline-none border-none focus:ring-2 focus:ring-chefly-orange text-lg dark:text-dark-text" 
+                        rows="3"></textarea>
+              
+              <button (click)="addComment(recipe.id!)" 
+        class="absolute bottom-4 right-4 w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-xl shadow-orange-500/40 hover:scale-110 active:scale-95 transition-all z-10">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" 
+         class="w-7 h-7 rotate-45 -translate-x-0.5" 
+         fill="none" 
+         viewBox="0 0 24 24" 
+         stroke="currentColor" 
+         stroke-width="3">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    </svg>
+</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="space-y-4">
+      <div *ngFor="let comment of recipe.comments" class="bg-white dark:bg-dark-card rounded-3xl p-6 shadow-sm border dark:border-dark-border flex gap-4 animate-fadeIn">
+          <img [src]="comment.photoURL || 'assets/default-avatar.png'" class="w-12 h-12 rounded-full object-cover shadow-md">
+          <div>
+              <p class="font-black dark:text-dark-text">
+                {{ comment.userName }} 
+                <span class="text-[10px] text-gray-400 font-bold ml-2 uppercase italic">{{ comment.date | date:'short' }}</span>
+              </p>
+              <p class="text-gray-600 dark:text-dark-secondary text-lg mt-2 leading-relaxed">
+                "{{ comment.text }}"
+              </p>
+          </div>
+      </div>
+
+      <div *ngIf="!recipe.comments || recipe.comments.length === 0" class="text-center py-10 opacity-50">
+          <p class="italic font-bold text-gray-400">Sé el primero en comentar esta receta...</p>
+      </div>
+  </div>
+</div>
+
+    <div *ngIf="activeTab === 'info'" class="animate-fadeIn max-w-4xl mx-auto">
+      <div class="bg-[#F8F9FA] dark:bg-dark-card rounded-[24px] p-8 md:p-12 border border-[#FDBA74] dark:border-dark-border shadow-sm">
         
-        <button (click)="showReportModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
-        
-        <div class="text-center mb-6">
-        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🚩</div>
-        <h3 class="text-2xl font-black text-gray-900">Reportar Receta</h3>
-        <p class="text-gray-500 text-sm">Ayúdanos a mantener la comunidad segura.</p>
+        <div class="mb-10 text-center md:text-left">
+          <h2 class="text-3xl font-bold text-[#111827] dark:text-dark-text mb-2 tracking-tighter">Estadísticas de la receta</h2>
+          <p class="text-[#6B7280] dark:text-dark-secondary font-medium">Análisis detallado de rendimiento.</p>
         </div>
 
-        <form (submit)="submitReport()">
-        <div class="space-y-3 mb-6">
-            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
-            <input type="radio" name="reason" value="inapropiado" class="accent-red-500 w-5 h-5">
-            <span class="font-bold text-gray-700">Contenido inapropiado / NSFW</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
-            <input type="radio" name="reason" value="insultos" class="accent-red-500 w-5 h-5">
-            <span class="font-bold text-gray-700">Insultos o lenguaje ofensivo</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
-            <input type="radio" name="reason" value="spam" class="accent-red-500 w-5 h-5">
-            <span class="font-bold text-gray-700">Spam o Publicidad</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
-            <input type="radio" name="reason" value="plagio" class="accent-red-500 w-5 h-5">
-            <span class="font-bold text-gray-700">Plagio / Derechos de autor</span>
-            </label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div class="bg-[#F9FAFB] dark:bg-dark-bg p-6 rounded-[16px] border border-[#FED7AA] dark:border-dark-border transition-transform hover:scale-[1.02]">
+            <div class="flex items-center gap-2 text-orange-500 mb-3">
+              <span class="text-xl">⭐</span>
+              <span class="text-[10px] font-black uppercase tracking-widest">Calificación</span>
+            </div>
+            <div class="text-5xl font-black text-[#111827] dark:text-dark-text mb-1">{{ recipe.rating }}</div>
+            <p class="text-[10px] font-bold text-[#6B7280] dark:text-dark-secondary">Basado en {{ recipe.ratingCount }} valoraciones</p>
+          </div>
+
+          <div class="bg-[#F9FAFB] dark:bg-dark-bg p-6 rounded-[16px] border border-[#FED7AA] dark:border-dark-border transition-transform hover:scale-[1.02]">
+            <div class="flex items-center gap-2 text-blue-500 mb-3">
+              <span class="text-xl">👁️</span>
+              <span class="text-[10px] font-black uppercase tracking-widest">Popularidad</span>
+            </div>
+            <div class="text-5xl font-black text-[#111827] dark:text-dark-text mb-1">{{ recipe.views }}</div>
+            <p class="text-[10px] font-bold text-[#6B7280] dark:text-dark-secondary">Vistas totales de la comunidad</p>
+          </div>
+
+          <div class="bg-[#F9FAFB] dark:bg-dark-bg p-6 rounded-[16px] border border-[#FED7AA] dark:border-dark-border transition-transform hover:scale-[1.02]">
+            <div class="flex items-center gap-2 text-green-500 mb-3">
+              <span class="text-xl">⏱️</span>
+              <span class="text-[10px] font-black uppercase tracking-widest">Tiempo</span>
+            </div>
+            <div class="text-5xl font-black text-[#111827] dark:text-dark-text mb-1">{{ recipe.prepTime }}<span class="text-2xl ml-1">min</span></div>
+            <p class="text-[10px] font-bold text-[#6B7280] dark:text-dark-secondary">Tiempo estimado de preparación</p>
+          </div>
+
+          <div class="bg-[#F9FAFB] dark:bg-dark-bg p-6 rounded-[16px] border border-[#FED7AA] dark:border-dark-border transition-transform hover:scale-[1.02]">
+            <div class="flex items-center gap-2 text-purple-500 mb-3">
+              <span class="text-xl">👥</span>
+              <span class="text-[10px] font-black uppercase tracking-widest">Porciones</span>
+            </div>
+            <div class="text-5xl font-black text-[#111827] dark:text-dark-text mb-1">{{ recipe.servings }}</div>
+            <p class="text-[10px] font-bold text-[#6B7280] dark:text-dark-secondary">Cantidad de comensales</p>
+          </div>
         </div>
 
-        <textarea placeholder="Detalles adicionales (opcional)..." class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-200 outline-none resize-none mb-6" rows="3"></textarea>
+        <div class="space-y-6 pt-8 border-t border-orange-100 dark:border-dark-border">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black text-[#6B7280] dark:text-dark-secondary uppercase tracking-widest">Categoría</span>
+            <span class="bg-gray-200 dark:bg-dark-elevated text-[#111827] dark:text-dark-text px-4 py-1.5 rounded-full text-xs font-black shadow-sm border border-gray-300 dark:border-dark-border">{{ recipe.category }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black text-[#6B7280] dark:text-dark-secondary uppercase tracking-widest">Dificultad</span>
+            <span class="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-4 py-1.5 rounded-full text-xs font-black shadow-sm border border-red-200 dark:border-red-800 uppercase">{{ recipe.difficulty }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black text-[#6B7280] dark:text-dark-secondary uppercase tracking-widest">Publicada</span>
+            <span class="text-[#111827] dark:text-dark-text font-bold italic">15 de febrero de 2026</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-200">
-            Enviar Reporte
-        </button>
+  </main>
+</div>
+
+<div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-dark-bg/80 backdrop-blur-xl p-4 animate-fadeIn">
+    <div class="bg-white dark:bg-dark-card rounded-[3rem] shadow-2xl max-w-md w-full p-10 relative border dark:border-dark-border">
+        <button (click)="closeReportModal()" class="absolute top-8 right-8 text-gray-400 hover:text-gray-600">✕</button>
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-red-100 dark:bg-red-900/20 text-red-500 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-4 rotate-3">🚩</div>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-dark-text tracking-tighter italic">Reportar Receta</h3>
+        </div>
+        <form (submit)="submitReport()" class="space-y-4">
+            <label class="flex items-center gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold">
+                <input type="radio" name="r" class="accent-red-500 w-5 h-5"> Contenido inapropiado
+            </label>
+            <label class="flex items-center gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold">
+                <input type="radio" name="r" class="accent-red-500 w-5 h-5"> Plagio o copia
+            </label>
+            <button type="submit" class="w-full bg-red-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-red-500/30 hover:bg-red-600 transition-all mt-6 uppercase tracking-widest text-sm">Enviar reporte</button>
         </form>
     </div>
-    </div>
+</div>

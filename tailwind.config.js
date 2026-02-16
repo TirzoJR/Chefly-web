@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class', // Habilita el cambio por clase .dark
+  darkMode: 'class', // Habilita el modo oscuro por clase
   content: [
     "./src/**/*.{html,ts}",
   ],
@@ -8,18 +8,21 @@ module.exports = {
     extend: {
       colors: {
         chefly: {
-          orange: '#FF6B00',
-          dark: '#0F172A',
+          orange: '#F97316', // Tu naranja de acento
           gray: '#F8FAFC',
         },
-        
         dark: {
-          bg: 'oklch(0.145 0 0)',
-          card: 'oklch(0.145 0 0)',
-          elevated: 'oklch(0.269 0 0)',
-          border: 'oklch(0.269 0 0)',
-          text: 'oklch(0.985 0 0)',
-          secondary: 'oklch(0.708 0 0)',
+          bg: '#0F172A',         // Fondo principal
+          card: '#1E293B',       // Fondos secundarios
+          border: '#334155',     // Bordes sutiles
+          text: '#F9FAFB',       // Texto principal
+          secondary: '#9CA3AF',  // Texto secundario
+          muted: '#6B7280',      // Texto deshabilitado
+        },
+        accent: {
+          success: '#22C55E',
+          warning: '#FACC15',
+          info: '#3B82F6',
         }
       }
     },

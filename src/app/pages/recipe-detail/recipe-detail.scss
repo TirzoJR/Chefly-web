@@ -1,0 +1,6 @@
+button {
+  &:not(:disabled):hover {
+    filter: brightness(1.1);
+    box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4); // Sombra roja al pasar el mouse
+  }
+}

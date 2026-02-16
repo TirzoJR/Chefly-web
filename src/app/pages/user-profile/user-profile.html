@@ -3,161 +3,149 @@
 
   <div class="max-w-7xl mx-auto px-4 py-8" *ngIf="user$ | async as authUser; else loading">
     
-    <div class="bg-white dark:bg-dark-card rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border p-8 mb-6" *ngIf="userData$ | async as data">
+    <div class="bg-white dark:bg-dark-card rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-dark-border p-8 mb-6" *ngIf="userData$ | async as data">
       <div class="flex flex-col md:flex-row items-center gap-6">
+        
         <div class="w-32 h-32 rounded-full bg-gradient-to-tr from-orange-500 to-orange-300 flex items-center justify-center text-white text-4xl font-bold shadow-lg overflow-hidden border-4 border-white dark:border-dark-border">
           <img *ngIf="authUser.photoURL" [src]="authUser.photoURL" class="w-full h-full object-cover">
-          <span *ngIf="!authUser.photoURL">{{ getInitials(authUser.displayName) }}</span>
+          <span *ngIf="!authUser.photoURL">
+            {{ getInitials(authUser.displayName) }}
+          </span>
         </div>
+        
         <div class="text-center md:text-left flex-1">
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-dark-text">{{ authUser.displayName }}</h1>
-          <p class="text-gray-500 dark:text-dark-secondary font-medium">{{ authUser.email }}</p>
+          <h1 class="text-4xl font-black text-gray-900 dark:text-dark-text tracking-tighter italic">
+            @{{ getFirstName(authUser.displayName) }}
+          </h1>
+          <p class="text-gray-500 dark:text-dark-secondary font-medium">
+            {{ authUser.email }}
+          </p>
         </div>
       </div>
 
+
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-        <div class="bg-orange-50 dark:bg-dark-elevated p-4 rounded-2xl text-center border dark:border-dark-border">
-          <p class="text-orange-600 font-bold text-2xl">{{ (myRecipes$ | async)?.length || 0 }}</p>
-          <p class="text-orange-400 text-xs font-bold uppercase tracking-widest">Recetas</p>
+        <div class="bg-orange-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-orange-100 dark:border-dark-border transition-colors">
+          <p class="text-orange-600 font-black text-2xl">{{ (myRecipes$ | async)?.length || 0 }}</p>
+          <p class="text-orange-400 text-[10px] font-black uppercase tracking-widest">Recetas</p>
         </div>
-        <div class="bg-blue-50 dark:bg-dark-elevated p-4 rounded-2xl text-center border dark:border-dark-border">
-          <p class="text-blue-600 font-bold text-2xl">{{ data.followersCount || 0 }}</p>
-          <p class="text-blue-400 text-xs font-bold uppercase tracking-widest">Seguidores</p>
+        <div class="bg-blue-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-blue-100 dark:border-dark-border transition-colors">
+          <p class="text-blue-600 font-black text-2xl">{{ data?.followersCount || 0 }}</p>
+          <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest">Seguidores</p>
         </div>
-        <div class="bg-pink-50 dark:bg-dark-elevated p-4 rounded-2xl text-center border dark:border-dark-border">
-          <p class="text-pink-600 font-bold text-2xl">{{ (favoriteRecipes$ | async)?.length || 0 }}</p>
-          <p class="text-pink-400 text-xs font-bold uppercase tracking-widest">Favoritos</p>
+        <div class="bg-pink-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-pink-100 dark:border-dark-border transition-colors">
+          <p class="text-pink-600 font-black text-2xl">{{ (favoriteRecipes$ | async)?.length || 0 }}</p>
+          <p class="text-pink-400 text-[10px] font-black uppercase tracking-widest">Favoritos</p>
         </div>
-        <div class="bg-purple-50 dark:bg-dark-elevated p-4 rounded-2xl text-center border dark:border-dark-border">
-          <p class="text-purple-600 font-bold text-2xl">{{ data.likesCount || 0 }}</p>
-          <p class="text-purple-400 text-xs font-bold uppercase tracking-widest">Me Gusta</p>
+        <div class="bg-purple-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-purple-100 dark:border-dark-border transition-colors">
+          <p class="text-purple-600 font-black text-2xl">{{ data?.likesCount || 0 }}</p>
+          <p class="text-purple-400 text-[10px] font-black uppercase tracking-widest">Me Gusta</p>
         </div>
       </div>
     </div>
 
-    <div class="bg-gray-100/50 dark:bg-dark-elevated rounded-2xl p-1.5 flex mb-8 w-full sticky top-20 z-40 backdrop-blur-md border dark:border-dark-border">
-      <button (click)="activeTab = 'info'" [class]="activeTab === 'info' ? 'bg-white dark:bg-dark-card shadow-sm text-chefly-orange' : 'text-gray-500'" class="flex-1 py-3 rounded-xl font-bold transition-all">👤 Información</button>
-      <button (click)="activeTab = 'recipes'" [class]="activeTab === 'recipes' ? 'bg-white dark:bg-dark-card shadow-sm text-chefly-orange' : 'text-gray-500'" class="flex-1 py-3 rounded-xl font-bold transition-all">🍳 Recetas</button>
-      <button (click)="activeTab = 'favorites'" [class]="activeTab === 'favorites' ? 'bg-white dark:bg-dark-card shadow-sm text-chefly-orange' : 'text-gray-500'" class="flex-1 py-3 rounded-xl font-bold transition-all">❤️ Favoritos</button>
-      <button (click)="activeTab = 'settings'" [class]="activeTab === 'settings' ? 'bg-white dark:bg-dark-card shadow-sm text-chefly-orange' : 'text-gray-500'" class="flex-1 py-3 rounded-xl font-bold transition-all">⚙️ Ajustes</button>
+    <div class="bg-white/80 dark:bg-dark-card/80 rounded-2xl p-1.5 flex mb-8 w-full sticky top-20 z-40 backdrop-blur-md border border-gray-100 dark:border-dark-border shadow-sm">
+      <button (click)="activeTab = 'info'" [class]="activeTab === 'info' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Perfil</button>
+      <button (click)="activeTab = 'recipes'" [class]="activeTab === 'recipes' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Mis Recetas</button>
+      <button (click)="activeTab = 'favorites'" [class]="activeTab === 'favorites' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Favoritos</button>
+      <button (click)="activeTab = 'settings'" [class]="activeTab === 'settings' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Ajustes</button>
     </div>
 
     <div [ngSwitch]="activeTab">
-      <div *ngSwitchCase="'info'" class="space-y-6">
-        <div class="bg-white dark:bg-dark-card p-8 rounded-3xl border dark:border-dark-border relative shadow-sm">
-          <button (click)="toggleEditBio()" class="absolute top-6 right-6 bg-gray-50 dark:bg-dark-elevated px-4 py-2 rounded-xl text-xs font-bold border dark:border-dark-border">Editar</button>
-          <h3 class="text-xl font-bold mb-6 italic">👤 Información Personal</h3>
+      
+      <div *ngSwitchCase="'info'" class="space-y-6 animate-fadeIn">
+        <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-dark-border relative shadow-sm">
+          <button (click)="toggleEditBio()" class="absolute top-8 right-8 bg-gray-50 dark:bg-dark-bg px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border dark:border-dark-border hover:bg-orange-50 transition-colors">Editar Bio</button>
+          <h3 class="text-2xl font-black mb-8 italic tracking-tighter">Sobre mí</h3>
           
-          <div class="space-y-6">
+          <div class="space-y-8">
             <div>
-              <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Email</label>
-              <p class="font-bold text-gray-700 dark:text-dark-text">{{ authUser.email }}</p>
-            </div>
-
-            <div>
-              <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Biografía</label>
-              <p *ngIf="!isEditingBio" class="text-base text-gray-600 dark:text-dark-secondary leading-relaxed border-l-4 border-orange-100 pl-4 py-1 italic">
-                "{{ bioText || '¡Aún no has escrito una biografía!' }}"
+              <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block mb-2">Biografía</label>
+              <p *ngIf="!isEditingBio" class="text-lg text-gray-600 dark:text-dark-secondary leading-relaxed border-l-4 border-orange-100 dark:border-orange-900/30 pl-6 py-1 italic">
+                "{{ bioText || 'Escribe algo sobre tu pasión por la cocina...' }}"
               </p>
-              <div *ngIf="isEditingBio">
-                <textarea [(ngModel)]="bioText" class="w-full p-4 bg-gray-50 dark:bg-dark-elevated rounded-2xl border dark:border-dark-border outline-none font-sans" rows="3"></textarea>
-                <button (click)="saveBio(authUser.uid)" class="mt-2 bg-chefly-orange text-white px-6 py-2 rounded-xl font-bold text-sm">Guardar</button>
+              <div *ngIf="isEditingBio" class="animate-fadeIn">
+                <textarea [(ngModel)]="bioText" class="w-full p-6 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border dark:border-dark-border focus:ring-2 focus:ring-chefly-orange outline-none font-sans text-lg dark:text-dark-text" rows="4"></textarea>
+                <button (click)="saveBio(authUser.uid)" class="mt-4 bg-chefly-orange text-white px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-95 transition-all">Guardar Cambios</button>
               </div>
             </div>
 
-            <div class="pt-6 border-t dark:border-dark-border w-full">
-              <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Miembro desde</label>
-              <p class="font-bold text-gray-700 dark:text-dark-text mt-1 italic">14 de marzo de 2024</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white dark:bg-dark-card p-8 rounded-3xl border dark:border-dark-border shadow-sm" *ngIf="userData$ | async as data">
-          <h3 class="text-xl font-bold mb-6 italic">📈 Estadísticas</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gray-50 dark:bg-dark-elevated p-6 rounded-2xl flex items-center gap-6 border dark:border-dark-border">
-              <span class="text-4xl text-yellow-500">⭐</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 pt-8 border-t dark:border-dark-border">
               <div>
-                <p class="text-2xl font-black">{{ data.likesGiven || 0 }}</p>
-                <p class="text-xs text-gray-400 font-bold uppercase">Total de Me Gusta</p>
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Email</label>
+                <p class="font-bold text-gray-900 dark:text-dark-text">{{ authUser?.email }}</p>
               </div>
-            </div>
-            <div class="bg-gray-50 dark:bg-dark-elevated p-6 rounded-2xl flex items-center gap-6 border dark:border-dark-border">
-              <span class="text-4xl text-blue-500">💬</span>
               <div>
-                <p class="text-2xl font-black">{{ data.commentsReceived || 0 }}</p>
-                <p class="text-xs text-gray-400 font-bold uppercase">Comentarios Recibidos</p>
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Miembro desde</label>
+                <p class="font-bold text-gray-900 dark:text-dark-text italic">14 de marzo de 2024</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div *ngSwitchCase="'recipes'" class="animate-fadeIn">
-        <div *ngIf="(myRecipes$ | async) as recipes">
-          <div *ngIf="recipes.length > 0; else noRecipes" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div *ngFor="let r of recipes" class="bg-white dark:bg-dark-card rounded-3xl overflow-hidden border dark:border-dark-border shadow-sm">
-              <img [src]="r.imageUrl" class="h-48 w-full object-cover">
-              <div class="p-4"><h4 class="font-bold">{{ r.title }}</h4></div>
+      <div *ngSwitchCase="activeTab === 'recipes' ? 'recipes' : 'favorites'" class="animate-fadeIn">
+        <div *ngIf="(activeTab === 'recipes' ? myRecipes$ : favoriteRecipes$) | async as recipes; else noData">
+          <div *ngIf="recipes.length > 0; else noData" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div *ngFor="let recipe of recipes" class="bg-white dark:bg-dark-card rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden hover:shadow-xl transition-all duration-500 flex flex-col h-full group relative">
+              <div class="relative h-56 overflow-hidden">
+                <img [src]="recipe.imageUrl || 'https://via.placeholder.com/400x300?text=Sin+Imagen'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div [ngClass]="getDifficultyStyle(recipe.difficulty)" class="absolute top-4 right-4 backdrop-blur-md px-3 py-1.5 rounded-full border shadow-sm text-[10px] font-black uppercase tracking-widest">
+                  {{ recipe.difficulty }}
+                </div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col">
+                <div class="flex justify-between items-start mb-3">
+                  <h4 class="text-xl font-black text-gray-900 dark:text-dark-text leading-tight tracking-tighter">{{ recipe.title }}</h4>
+                  <span class="bg-gray-50 dark:bg-dark-bg text-gray-500 text-[9px] font-black px-2 py-1 rounded-lg uppercase border dark:border-dark-border">{{ recipe.category }}</span>
+                </div>
+                <p class="text-gray-500 dark:text-dark-secondary text-sm line-clamp-2 mb-6 italic leading-relaxed">{{ recipe.description }}</p>
+                <div class="flex items-center justify-between text-gray-400 text-[10px] font-black uppercase tracking-tighter pt-4 border-t dark:border-dark-border mt-auto">
+                  <span class="flex items-center gap-1">⏱️ {{ recipe.prepTime }} min</span>
+                  <span class="flex items-center gap-1 text-yellow-500">★ {{ recipe.rating || 0 }}</span>
+                  <span class="flex items-center gap-1">👁️ {{ recipe.views || 0 }}</span>
+                </div>
+                <a [routerLink]="['/recipe', recipe.id]" class="mt-6 block w-full text-center py-3 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-chefly-orange dark:hover:bg-chefly-orange dark:hover:text-white transition-all shadow-lg active:scale-95 cursor-pointer">
+                  Ver Receta
+                </a>
+              </div>
             </div>
-          </div>
-        </div>
-        <ng-template #noRecipes>
-          <div class="text-center py-20 bg-white dark:bg-dark-card rounded-3xl border-2 border-dashed dark:border-dark-border">
-            <span class="text-6xl block mb-4 italic">🍳</span>
-            <p class="text-xl font-bold text-gray-400 italic">Aun no hay nada por aqui... ¿Cocinamos algo?</p>
-          </div>
-        </ng-template>
-      </div>
-
-      <div *ngSwitchCase="'favorites'" class="animate-fadeIn">
-        <div *ngIf="(favoriteRecipes$ | async) as favs">
-          <div *ngIf="favs.length > 0; else noFavs" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div *ngFor="let f of favs" class="bg-white dark:bg-dark-card rounded-3xl overflow-hidden border dark:border-dark-border shadow-sm">
-              <img [src]="f.imageUrl" class="h-48 w-full object-cover">
-              <div class="p-4"><h4 class="font-bold">{{ f.title }}</h4></div>
-            </div>
-          </div>
-        </div>
-        <ng-template #noFavs>
-          <div class="text-center py-20 bg-white dark:bg-dark-card rounded-3xl border-2 border-dashed dark:border-dark-border">
-            <span class="text-6xl block mb-4 italic">❤️</span>
-            <p class="text-xl font-bold text-gray-400 italic">Aun no hay nada por aqui... ¿Cocinamos algo?</p>
-          </div>
-        </ng-template>
-      </div>
-
-      <div *ngSwitchCase="'settings'" class="max-w-xl mx-auto space-y-6">
-        <div class="bg-white dark:bg-dark-card p-8 rounded-3xl border dark:border-dark-border shadow-sm">
-          <h3 class="text-xl font-bold mb-8 italic">⚙️ Ajustes</h3>
-          
-          <div class="flex justify-between items-center mb-6 p-4 bg-gray-50 dark:bg-dark-elevated rounded-2xl">
-            <span class="font-bold italic">Modo Oscuro</span>
-            <button (click)="toggleDarkMode()" class="w-14 h-7 rounded-full relative transition-all" [ngClass]="isDarkMode ? 'bg-orange-600' : 'bg-gray-300'">
-              <div class="absolute w-5 h-5 bg-white rounded-full top-1 transition-all shadow-md" [style.left.px]="isDarkMode ? 32 : 4"></div>
-            </button>
-          </div>
-
-          <div class="mb-8 p-4 border dark:border-dark-border rounded-2xl">
-            <p class="font-bold mb-4 italic">Tamaño del Texto</p>
-            <div class="grid grid-cols-3 gap-4">
-              <button (click)="setFontSize('small')" [class.ring-2]="fontSize === 'small'" class="py-3 rounded-xl bg-gray-100 dark:bg-dark-elevated font-bold ring-orange-500">A</button>
-              <button (click)="setFontSize('medium')" [class.ring-2]="fontSize === 'medium'" class="py-3 rounded-xl bg-gray-100 dark:bg-dark-elevated font-bold ring-orange-500">A+</button>
-              <button (click)="setFontSize('large')" [class.ring-2]="fontSize === 'large'" class="py-3 rounded-xl bg-gray-100 dark:bg-dark-elevated font-bold ring-orange-500">A++</button>
-            </div>
-          </div>
-
-          <div class="space-y-4 pt-6 border-t dark:border-dark-border">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Cuenta</p>
-            <button routerLink="/" class="w-full py-4 bg-gray-100 dark:bg-dark-elevated rounded-2xl font-bold hover:bg-gray-200 transition-colors">Volver al Inicio</button>
-            <button (click)="logout()" class="w-full py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-colors shadow-lg active:scale-95">Cerrar Sesión</button>
           </div>
         </div>
       </div>
 
-    </div>
+      <div *ngSwitchCase="'settings'" class="max-w-xl mx-auto space-y-6 animate-fadeIn">
+        <div class="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-dark-border shadow-sm">
+          <h3 class="text-2xl font-black mb-10 italic tracking-tighter text-center">Configuración</h3>
+          <div class="space-y-8">
+            <div class="flex justify-between items-center p-5 bg-gray-50 dark:bg-dark-bg rounded-2xl border dark:border-dark-border">
+              <span class="font-bold italic">Modo Oscuro</span>
+              <button (click)="toggleDarkMode()" class="w-14 h-7 rounded-full relative transition-all" [ngClass]="isDarkMode ? 'bg-orange-600' : 'bg-gray-300'">
+                <div class="absolute w-5 h-5 bg-white rounded-full top-1 transition-all shadow-md" [style.left.px]="isDarkMode ? 32 : 4"></div>
+              </button>
+            </div>
+            <div class="p-5 border border-gray-100 dark:border-dark-border rounded-3xl">
+              <p class="font-black text-[10px] uppercase tracking-widest text-gray-400 mb-6 text-center">Tamaño de lectura</p>
+              <div class="grid grid-cols-3 gap-4">
+                <button (click)="setFontSize('small')" [class.ring-2]="fontSize === 'small'" class="py-4 rounded-2xl bg-gray-100 dark:bg-dark-bg font-black ring-orange-500 transition-all hover:bg-gray-200">A</button>
+                <button (click)="setFontSize('medium')" [class.ring-2]="fontSize === 'medium'" class="py-4 rounded-2xl bg-gray-100 dark:bg-dark-bg font-black ring-orange-500 transition-all hover:bg-gray-200">A+</button>
+                <button (click)="setFontSize('large')" [class.ring-2]="fontSize === 'large'" class="py-4 rounded-2xl bg-gray-100 dark:bg-dark-bg font-black ring-orange-500 transition-all hover:bg-gray-200">A++</button>
+              </div>
+            </div>
+            <div class="pt-10 border-t dark:border-dark-border space-y-4">
+              <button (click)="logout()" class="w-full py-4 bg-red-50 text-red-600 border border-red-100 dark:bg-red-900/10 dark:border-red-900/20 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Cerrar Sesión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> </div> </div> <ng-template #noData>
+  <div class="text-center py-24 bg-white dark:bg-dark-card rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-dark-border animate-fadeIn">
+    <span class="text-7xl block mb-6 grayscale opacity-40 italic">🥘</span>
+    <p class="text-xl font-black text-gray-400 italic tracking-tighter">Parece que aún no tienes nada por aquí...</p>
+    <button routerLink="/" class="mt-6 text-chefly-orange font-black uppercase text-xs tracking-[0.2em] hover:underline cursor-pointer">Explorar nuevas recetas</button>
   </div>
-</div>
+</ng-template>
 
 <ng-template #loading>
   <div class="min-h-screen flex items-center justify-center bg-chefly-gray dark:bg-dark-bg">

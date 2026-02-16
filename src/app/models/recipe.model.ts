@@ -1,7 +1,9 @@
 export interface Comment {
+  uid: string;
   userName: string;
+  photoURL: string;
   text: string;
-  date?: any;
+  date: string;
 }
 
 export interface Recipe {
@@ -13,16 +15,13 @@ export interface Recipe {
   difficulty: string;
   prepTime: number;
   servings: number;
+  rating: number;
+  ratingCount: number;
+  views: number;
   ingredients: string[];
   steps: string[];
-  views: number;
-  rating: number;       // Promedio real (ej: 4.5)
-  ratingCount: number;  // Total de votos (ej: 120)
-  
-  // 👇 NUEVOS CAMPOS DEL AUTOR
-  authorName: string;   // Ej: "María García"
-  authorId?: string;    // ID del usuario para ir a su perfil
-  authorPhoto?: string; // Foto del autor (opcional)
-
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
   comments?: Comment[];
 }

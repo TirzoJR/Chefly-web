@@ -1,116 +1,148 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-// IMPORTANTE: Asegúrate de importar todo de @angular/fire/firestore
-import { Firestore, doc, docData } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { Firestore, doc, docData, updateDoc, arrayUnion, arrayRemove } from '@angular/fire/firestore';
+import { Observable, of, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Recipe } from '../../models/recipe.model';
+import { AuthService } from '../../services/auth';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-recipe-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './recipe-detail.html'
 })
-export class RecipeDetailComponent {
+export class RecipeDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private firestore = inject(Firestore);
-  showReportModal: boolean = false;
+  public authService = inject(AuthService);
 
-
-
-  getStars(rating: number): number[] {
-    const stars = [];
-    const fullStars = Math.floor(rating); // Parte entera
-    
-
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(1); // Estrella llena
-      } else {
-        stars.push(0); // Estrella vacía
-      }
-    }
-    return stars;
-  }
-  openReportModal() {
-    this.showReportModal = true;
-  }
-
-  closeReportModal() {
-    this.showReportModal = false;
-  }
-
-  submitReport() {
-    
-    console.log('Reporte enviado');
-    alert('Gracias por tu reporte. Los administradores lo revisarán.');
-    this.closeReportModal();
-  }
-
-  recipe$: Observable<Recipe | undefined>;
+  recipeId: string = '';
+  recipe$: Observable<Recipe | undefined> = of(undefined);
   activeTab: string = 'recipe';
   completedStepIndices = new Set<number>();
+  showReportModal: boolean = false;
+  newComment: string = '';
+  
+  currentUserData: any = null;
+  private userSub?: Subscription;
 
-  constructor() {
+  ngOnInit() {
     this.recipe$ = this.route.paramMap.pipe(
       switchMap(params => {
-        const id = params.get('id');
-        if (!id) return of(undefined);
-        
-        // Usamos la instancia inyectada 'this.firestore' para evitar el error de contexto
-        const docRef = doc(this.firestore, `recipes/${id}`);
+        this.recipeId = params.get('id') || '';
+        if (!this.recipeId) return of(undefined);
+        const docRef = doc(this.firestore, `recipes/${this.recipeId}`);
         return docData(docRef, { idField: 'id' }) as Observable<Recipe>;
       })
     );
+
+    this.userSub = this.authService.user$.pipe(
+      switchMap(user => {
+        if (!user) return of(null);
+        return docData(doc(this.firestore, `users/${user.uid}`));
+      })
+    ).subscribe(data => this.currentUserData = data);
   }
 
-  setActiveTab(tab: string) {
-    this.activeTab = tab;
+  ngOnDestroy() {
+    this.userSub?.unsubscribe();
   }
 
-  // --- LÓGICA DE PROGRESO ---
+  async onToggleFavorite(recipeId: string) {
+    if (!this.currentUserData) return alert('Inicia sesión para guardar favoritos');
+    const favorites = this.currentUserData.favorites || [];
+    const isFav = favorites.includes(recipeId);
+    const userRef = doc(this.firestore, `users/${this.currentUserData.uid}`);
+    await updateDoc(userRef, {
+      favorites: isFav ? arrayRemove(recipeId) : arrayUnion(recipeId)
+    });
+  }
+
+  async rateRecipe(recipeId: string, stars: number) {
+    if (!this.authService.getCurrentUser()) return alert('Inicia sesión para calificar');
+    const recipeRef = doc(this.firestore, `recipes/${recipeId}`);
+    await updateDoc(recipeRef, { rating: stars });
+  }
+
+async addComment(id: string | undefined) {
+  const user = this.authService.getCurrentUser();
+  if (!user || !this.newComment.trim() || !id) return;
+
+  // LOG PARA LA CONSOLA: Abre F12 y mira qué sale aquí
+  console.log('Tu UID es:', user.uid);
+  console.log('Datos cargados de Firestore:', this.currentUserData);
+
+  // SOLUCIÓN DE FUERZA: 
+  // Si currentUserData tiene nombre, lo usa. Si no, usa el de Google. 
+  // Si todo falla, usa tu nombre real manualmente para probar.
+  const nombreParaGuardar = this.currentUserData?.displayName || user.displayName || "Tirzo Martinez";
+  
+  const recipeRef = doc(this.firestore, `recipes/${id}`);
+
+  try {
+    await updateDoc(recipeRef, {
+      comments: arrayUnion({
+        uid: user.uid,
+        userName: nombreParaGuardar, 
+        photoURL: this.currentUserData?.photoURL || user.photoURL || 'assets/default-avatar.png',
+        text: this.newComment,
+        date: new Date().toISOString()
+      })
+    });
+    this.newComment = ''; 
+    console.log('✅ Guardado como:', nombreParaGuardar);
+  } catch (error) {
+    console.error("❌ Error de Firebase:", error);
+  }
+}
+  async downloadPDF() {
+    const data = document.getElementById('recipe-content');
+    if (!data) return;
+
+    const originalTab = this.activeTab;
+    this.activeTab = 'recipe'; // Forzar pestaña receta para capturar pasos
+
+    setTimeout(async () => {
+      const actions = document.querySelectorAll('.action-buttons');
+      actions.forEach(el => (el as HTMLElement).style.display = 'none');
+      
+      try {
+        const canvas = await html2canvas(data, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('Chefly-Receta.pdf');
+      } finally {
+        actions.forEach(el => (el as HTMLElement).style.display = '');
+        this.activeTab = originalTab;
+      }
+    }, 200);
+  }
+
+  setActiveTab(tab: string) { this.activeTab = tab; }
   toggleStep(index: number) {
-    if (this.completedStepIndices.has(index)) {
-      this.completedStepIndices.delete(index);
-    } else {
-      this.completedStepIndices.add(index);
-    }
+    this.completedStepIndices.has(index) ? this.completedStepIndices.delete(index) : this.completedStepIndices.add(index);
   }
+  isStepCompleted(index: number) { return this.completedStepIndices.has(index); }
+  getCompletedCount() { return this.completedStepIndices.size; }
 
-  isStepCompleted(index: number): boolean {
-    return this.completedStepIndices.has(index);
-  }
-
-  getCompletedCount(): number {
-    return this.completedStepIndices.size;
-  }
-
-  // --- ESTILOS DINÁMICOS ---
   getDifficultyStyle(difficulty: string | undefined | null): string {
     if (!difficulty) return 'bg-gray-100 text-gray-800 border-gray-200';
-    
     const diff = difficulty.toLowerCase();
-    
-    // NOTA: Solo devolvemos colores de fondo y texto. 
-    // Los bordes los controlamos en el HTML si es necesario para evitar conflictos.
-    if (diff.includes('fácil') || diff.includes('facil')) {
-      return 'bg-green-100 text-green-700 border-green-200';
-    }
-    if (diff.includes('intermedio') || diff.includes('media')) {
-      return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    }
-    if (diff.includes('difícil') || diff.includes('dificil')) {
-      return 'bg-red-100 text-red-700 border-red-200';
-    }
-    
+    if (diff.includes('fácil')) return 'bg-green-100 text-green-700 border-green-200';
+    if (diff.includes('intermedio')) return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    if (diff.includes('difícil')) return 'bg-red-100 text-red-700 border-red-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 
-  getAvatarColor(name: string | undefined): string {
-    if (!name) return 'bg-gray-200 text-gray-500';
-    const colors = ['bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-purple-100 text-purple-600', 'bg-orange-100 text-orange-600'];
-    return colors[name.charCodeAt(0) % colors.length];
-  }
+  openReportModal() { this.showReportModal = true; }
+  closeReportModal() { this.showReportModal = false; }
+  submitReport() { alert('Reporte enviado.'); this.closeReportModal(); }
 }
