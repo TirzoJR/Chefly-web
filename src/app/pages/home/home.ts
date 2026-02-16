@@ -18,6 +18,8 @@ import { Observable, map } from 'rxjs';
 import { Recipe } from '../../models/recipe.model';
 
 import { register } from 'swiper/element/bundle';
+import { AuthService } from '../../services/auth';
+import { User } from '@angular/fire/auth';
 register();
 
 @Component({
@@ -29,11 +31,12 @@ register();
   styleUrl: './home.scss'
 })
 export class HomeComponent {
-  
+  private authService = inject(AuthService);
   private firestore = inject(Firestore);
   titles$: Observable<string[]>;
   
   // Observables para la UI
+  user$: Observable<User | null> = this.authService.user$;
   featuredRecipes$: Observable<Recipe[]>;
   recipes$: Observable<Recipe[]>;
   tip$: Observable<any>;
@@ -173,6 +176,22 @@ getDifficultyStyle(difficulty: string | undefined | null): string {
 
   return 'bg-gray-100 text-gray-800 border-gray-200';
 }
+login() {
+    this.authService.loginWithGoogle();
+  }
+logout() {
+    // 1. Mensaje de prueba en la consola (F12)
+    console.log("Botón presionado. Intentando mostrar confirmación...");
 
-  
+    // 2. Usamos window.confirm explícitamente
+    const confirmacion = window.confirm("¿Estás seguro de que quieres cerrar sesión?");
+
+    // 3. Verificamos qué eligió el usuario
+    if (confirmacion) {
+      console.log("Usuario dijo SÍ. Cerrando sesión...");
+      this.authService.logout();
+    } else {
+      console.log("Usuario dijo CANCELAR.");
+    }
+  }
 }

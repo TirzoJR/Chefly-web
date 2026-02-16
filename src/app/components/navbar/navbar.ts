@@ -1,28 +1,39 @@
 import { Component, inject } from '@angular/core';
-import { Auth, GoogleAuthProvider, signInWithPopup, signOut, user } from '@angular/fire/auth';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { RouterLink,RouterLinkActive } from '@angular/router';
+import { Observable } from 'rxjs';
+import { User } from '@angular/fire/auth';
+
+
+import { AuthService } from '../../services/auth'; 
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [AsyncPipe, NgIf],
-  templateUrl: './navbar.html',
-  styleUrl: './navbar.scss'
+  imports: [CommonModule, RouterLink],
+  templateUrl: './navbar.html'
 })
-export class NavbarComponent {
-  private auth = inject(Auth);
-  user$ = user(this.auth); // Observa el estado del usuario en tiempo real
+export class NavbarComponent { 
 
-  async login() {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(this.auth, provider);
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-    }
+  // 1. Inyectamos el servicio
+  private authService = inject(AuthService);
+  
+  // 2. Variable para saber si hay usuario (para el *ngIf del HTML)
+  user$ = this.authService.user$;
+
+  // 3. Función Login (si tienes botón de login en el navbar)
+  login() {
+    this.authService.loginWithGoogle();
   }
 
-  async logout() {
-    await signOut(this.auth);
+  // 4. ✅ FUNCIÓN LOGOUT CON CONFIRMACIÓN
+  logout() {
+    console.log("Intentando cerrar sesión desde el Navbar..."); // Log para depurar
+    
+    const confirmacion = window.confirm("¿Estás seguro de que quieres cerrar sesión?");
+
+    if (confirmacion) {
+      this.authService.logout();
+    }
   }
 }

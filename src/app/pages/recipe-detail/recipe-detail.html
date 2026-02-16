@@ -1,64 +1,266 @@
-    <div class="bg-gray-50 min-h-screen pb-12">
-    <div *ngIf="!(recipe$ | async)" class="text-center py-20">
-        <p class="text-gray-500">Cargando receta...</p>
+    <div *ngIf="recipe$ | async as recipe" class="min-h-screen bg-gray-50 font-sans text-gray-800 pb-20">
+
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+        <a routerLink="/" class="flex items-center gap-2 text-gray-600 hover:text-orange-500 font-medium transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Volver
+        </a>
+        <div class="flex items-center gap-2">
+        <div class="bg-orange-500 text-white p-1.5 rounded-lg">👨‍🍳</div>
+        <span class="text-xl font-bold text-orange-500">RecetasApp</span>
+        </div>
+        <div class="w-8"></div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 mt-8 relative z-10">
+
+        <div class="relative w-full h-[400px] rounded-[2.5rem] overflow-hidden shadow-xl mb-8">
+        <img [src]="recipe.imageUrl" class="w-full h-full object-cover" [alt]="recipe.title">
+        <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-black/60 to-transparent"></div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 mb-10">
+        <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
+            <h1 class="text-3xl md:text-5xl font-black text-gray-900 leading-tight flex-1">
+            {{ recipe.title }}
+            </h1>
+            
+            <div class="flex gap-3 pt-1">
+            <button class="p-3 rounded-full border border-gray-100 text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            </button>
+            <button class="p-3 rounded-full border border-gray-100 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 hover:border-yellow-200 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8l-2 2H5a2 2 0 01-2-2zM12 7V3m0 0l-3 3m3-3l3 3"></path></svg>
+            </button>
+            <button class="p-3 rounded-full border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            </button>
+            </div>
+        </div>
+
+        <p class="text-gray-600 text-lg mb-8 leading-relaxed">{{ recipe.description }}</p>
+
+        <div class="flex flex-wrap gap-3 mb-8">
+            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">🥘 {{ recipe.category }}</span>
+            <span [ngClass]="getDifficultyStyle(recipe.difficulty)" class="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border">⚡ {{ recipe.difficulty }}</span>
+            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">⏱️ {{ recipe.prepTime }} min</span>
+            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">👥 {{ recipe.servings }} porciones</span>
+            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">👁️ {{ recipe.views }} vistas</span>
+        </div>
+
+        <div class="flex items-center gap-4 pt-6 border-t border-gray-100">
+        
+        <div class="flex items-center gap-3">
+          <div *ngIf="recipe.authorPhoto; else defaultAvatar" class="w-12 h-12 rounded-full overflow-hidden shadow-lg border-2 border-orange-100">
+             <img [src]="recipe.authorPhoto" class="w-full h-full object-cover">
+          </div>
+          
+          <ng-template #defaultAvatar>
+             <div class="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center font-black text-xl shadow-lg">
+                {{ recipe.authorName ? recipe.authorName.charAt(0).toUpperCase() : 'A' }}
+             </div>
+          </ng-template>
+
+          <div>
+            <p class="font-black text-gray-900 leading-tight">{{ recipe.authorName || 'Autor Anónimo' }}</p>
+            <a *ngIf="recipe.authorId" [routerLink]="['/profile', recipe.authorId]" class="text-xs text-orange-500 font-bold uppercase hover:underline cursor-pointer">
+               Ver perfil
+            </a>
+          </div>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+            <div class="flex text-yellow-400 text-xl">
+              <ng-container *ngFor="let star of getStars(recipe.rating)">
+                 <span *ngIf="star === 1">★</span>  <span *ngIf="star === 0" class="text-gray-300">★</span> </ng-container>
+            </div>
+            <span class="font-bold text-gray-900 text-lg">{{ recipe.rating }}</span>
+            <span class="text-sm text-gray-400 font-medium">({{ recipe.ratingCount }} vals.)</span>
+        </div>
+      </div>
+        </div>
+
+        <div class="flex mb-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <button (click)="setActiveTab('recipe')" 
+                class="flex-1 py-4 font-black text-lg border-b-4 transition-all flex items-center justify-center gap-2 hover:bg-gray-50"
+                [ngClass]="activeTab === 'recipe' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'">
+            🍳 Receta
+        </button>
+        <button (click)="setActiveTab('comments')" 
+                class="flex-1 py-4 font-black text-lg border-b-4 transition-all flex items-center justify-center gap-2 hover:bg-gray-50"
+                [ngClass]="activeTab === 'comments' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'">
+            💬 Comentarios ({{ (recipe.comments || []).length }})
+        </button>
+        <button (click)="setActiveTab('info')" 
+                class="flex-1 py-4 font-black text-lg border-b-4 transition-all flex items-center justify-center gap-2 hover:bg-gray-50"
+                [ngClass]="activeTab === 'info' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'">
+            👁️ Información
+        </button>
+        </div>
+
+        <div *ngIf="activeTab === 'recipe'" class="space-y-10 animate-fadeIn">
+        
+        <section class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
+            <div>
+                <h2 class="text-2xl font-black text-gray-900">Ingredientes</h2>
+                <p class="text-gray-500 mt-1">Todo lo que necesitas para {{ recipe.servings }} porciones</p>
+            </div>
+            <button class="bg-black text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-orange-500 transition-all shadow-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Agregar al Carrito
+            </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+            <div *ngFor="let item of recipe.ingredients" class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-orange-100 hover:bg-orange-50 transition-colors">
+                <span class="text-orange-500 text-xl font-bold">•</span>
+                <span class="font-bold text-gray-700 text-lg">{{ item }}</span>
+            </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex justify-between items-end mb-6">
+            <div>
+                <h2 class="text-2xl font-black text-gray-900">Preparación</h2>
+                <p class="text-gray-500 mt-1">Sigue estos pasos para crear tu receta perfecta</p>
+            </div>
+            <span class="text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+                Progreso: {{ getCompletedCount() }} / {{ (recipe.steps || []).length }}
+            </span>
+            </div>
+
+            <div class="space-y-4">
+            <div *ngFor="let step of recipe.steps; let i = index" 
+                class="border rounded-2xl p-6 flex gap-6 transition-all duration-300 cursor-pointer group hover:shadow-md"
+                [ngClass]="isStepCompleted(i) ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-orange-200'"
+                (click)="toggleStep(i)">
+                
+                <div [ngClass]="isStepCompleted(i) ? 'bg-green-500 border-green-500' : 'bg-orange-500 border-orange-500'"
+                    class="flex-shrink-0 w-12 h-12 text-white rounded-full flex items-center justify-center font-black text-xl shadow-lg border-4 transition-colors">
+                <span *ngIf="!isStepCompleted(i)">{{ i + 1 }}</span>
+                <svg *ngIf="isStepCompleted(i)" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                
+                <div class="flex-1 pt-1">
+                <p [ngClass]="isStepCompleted(i) ? 'line-through text-gray-500' : 'text-gray-800'" 
+                    class="text-lg leading-relaxed mb-2 font-medium transition-colors">
+                    {{ step }}
+                </p>
+                <span [ngClass]="isStepCompleted(i) ? 'text-green-600' : 'text-gray-400 group-hover:text-orange-500'" 
+                        class="text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-colors">
+                    {{ isStepCompleted(i) ? '✓ Paso completado' : 'Haz clic para completar' }}
+                </span>
+                </div>
+            </div>
+            </div>
+        </section>
+        </div>
+
+        <div *ngIf="activeTab === 'comments'" class="space-y-6 animate-fadeIn">
+        <div *ngFor="let comment of (recipe.comments || [])" class="bg-white border-l-4 border-orange-500 rounded-xl p-6 shadow-sm border-t border-r border-b ">
+            <div class="flex items-center gap-3 mb-3">
+                <div [ngClass]="getAvatarColor(comment.userName)" class="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm">
+                    {{ comment.userName.charAt(0) }}
+                </div>
+                <div>
+                    <div class="font-bold text-gray-900">{{ comment.userName }}</div>
+                    <div class="text-xs text-gray-400 font-bold uppercase">15 Feb 2026</div>
+                </div>
+            </div>
+            <p class="text-gray-700 text-lg">{{ comment.text }}</p>
+        </div>
+        
+        <div *ngIf="!(recipe.comments || []).length" class="text-center py-12 bg-white rounded-2xl border border-gray-100">
+            <p class="text-gray-400 font-bold">No hay comentarios todavía.</p>
+        </div>
+        </div>
+
+        <div *ngIf="activeTab === 'info'" class="grid grid-cols-2 gap-6 animate-fadeIn">
+        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
+            <div class="flex items-center gap-2 text-yellow-500 mb-2 font-bold uppercase text-xs tracking-wider">⭐ Calificación</div>
+            <div class="text-4xl font-black text-gray-900">{{ recipe.rating }}</div>
+            <div class="text-xs text-gray-400 mt-1 font-bold">{{ recipe.ratingCount }} votos</div>
+        </div>
+        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
+            <div class="flex items-center gap-2 text-blue-500 mb-2 font-bold uppercase text-xs tracking-wider">👁 Popularidad</div>
+            <div class="text-4xl font-black text-gray-900">{{ recipe.views }}</div>
+            <div class="text-xs text-gray-400 mt-1 font-bold">Vistas totales</div>
+        </div>
+        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
+            <div class="flex items-center gap-2 text-green-500 mb-2 font-bold uppercase text-xs tracking-wider">⏱ Tiempo</div>
+            <div class="text-4xl font-black text-gray-900">{{ recipe.prepTime }}</div>
+            <div class="text-xs text-gray-400 mt-1 font-bold">Minutos</div>
+        </div>
+        <div class="bg-white p-8 border border-gray-100 rounded-[2rem] shadow-sm">
+            <div class="flex items-center gap-2 text-purple-500 mb-2 font-bold uppercase text-xs tracking-wider">👥 Porciones</div>
+            <div class="text-4xl font-black text-gray-900">{{ recipe.servings }}</div>
+            <div class="text-xs text-gray-400 mt-1 font-bold">Personas</div>
+        </div>
+        <div class="col-span-2 bg-gray-50 rounded-[2rem] p-8 mt-4 grid grid-cols-1 md:grid-cols-3 gap-8 border border-gray-100">
+            <div>
+                <h4 class="font-bold text-gray-900 mb-3">Categoría</h4>
+                <span class="bg-white px-4 py-2 rounded-lg font-bold text-sm border border-gray-200 shadow-sm inline-block">{{ recipe.category }}</span>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-900 mb-3">Nivel de Dificultad</h4>
+                <span [ngClass]="getDifficultyStyle(recipe.difficulty)" class="px-4 py-2 rounded-lg font-bold text-sm border shadow-sm inline-block">
+                {{ recipe.difficulty }}
+                </span>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-900 mb-3">Publicada</h4>
+                <span class="text-gray-500 font-medium">15 de febrero de 2026</span>
+            </div>
+        </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-20 py-12 border-t border-gray-200 bg-white text-center">
+        <p class="text-gray-900 font-black text-lg">© 2026 RecetasApp</p>
+        <p class="text-gray-400 font-bold uppercase text-xs mt-2 tracking-widest">Plataforma colaborativa de cocina</p>
+    </footer>
+
     </div>
 
-    <div *ngIf="recipe$ | async as recipe" class="max-w-4xl mx-auto bg-white shadow-xl rounded-b-3xl overflow-hidden">
+    <div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
         
-        <div class="relative h-96">
-        <img [src]="recipe.imageUrl" class="w-full h-full object-cover" alt="{{ recipe.title }}">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <button (click)="showReportModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
         
-        <a routerLink="/" class="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full hover:bg-white/30 transition">
-            ← Volver
-        </a>
-
-        <div class="absolute bottom-8 left-8 text-white">
-            <span class="bg-chefly-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 inline-block">
-            {{ recipe.category }}
-            </span>
-            <h1 class="text-4xl font-bold">{{ recipe.title }}</h1>
-        </div>
+        <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🚩</div>
+        <h3 class="text-2xl font-black text-gray-900">Reportar Receta</h3>
+        <p class="text-gray-500 text-sm">Ayúdanos a mantener la comunidad segura.</p>
         </div>
 
-        <div class="p-8">
-        <div class="flex flex-wrap gap-6 border-b border-gray-100 pb-8 mb-8 text-gray-600">
-            <div class="flex items-center gap-2">
-            <span>⏱️</span> <strong>{{ recipe.prepTime || 0 }} min</strong>
-            </div>
-            <div class="flex items-center gap-2">
-            <span>👨‍👩‍👧‍👦</span> <strong>{{ recipe.servings || 2 }} porciones</strong>
-            </div>
-            <div class="flex items-center gap-2">
-            <span>🔥</span> <strong>{{ recipe.difficulty || 'Medio' }}</strong>
-            </div>
+        <form (submit)="submitReport()">
+        <div class="space-y-3 mb-6">
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
+            <input type="radio" name="reason" value="inapropiado" class="accent-red-500 w-5 h-5">
+            <span class="font-bold text-gray-700">Contenido inapropiado / NSFW</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
+            <input type="radio" name="reason" value="insultos" class="accent-red-500 w-5 h-5">
+            <span class="font-bold text-gray-700">Insultos o lenguaje ofensivo</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
+            <input type="radio" name="reason" value="spam" class="accent-red-500 w-5 h-5">
+            <span class="font-bold text-gray-700">Spam o Publicidad</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-all">
+            <input type="radio" name="reason" value="plagio" class="accent-red-500 w-5 h-5">
+            <span class="font-bold text-gray-700">Plagio / Derechos de autor</span>
+            </label>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-12">
-            <div class="md:col-span-1">
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Ingredientes</h3>
-            <ul class="space-y-3">
-                <li *ngFor="let ingredient of recipe.ingredients" class="flex items-start gap-3 text-gray-700">
-                <span class="text-chefly-orange mt-1">•</span>
-                {{ ingredient }}
-                </li>
-                <li *ngIf="!recipe.ingredients?.length" class="text-gray-400 italic">No se listaron ingredientes.</li>
-            </ul>
-            </div>
+        <textarea placeholder="Detalles adicionales (opcional)..." class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-200 outline-none resize-none mb-6" rows="3"></textarea>
 
-            <div class="md:col-span-2">
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Preparación</h3>
-            <div class="space-y-6">
-                <div *ngFor="let step of recipe.steps; let i = index" class="flex gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-orange-100 text-chefly-orange rounded-full flex items-center justify-center font-bold">
-                    {{ i + 1 }}
-                </div>
-                <p class="text-gray-700 mt-1">{{ step }}</p>
-                </div>
-                <p *ngIf="!recipe.steps?.length" class="text-gray-400 italic">No hay pasos registrados.</p>
-            </div>
-            </div>
-        </div>
-        </div>
+        <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-200">
+            Enviar Reporte
+        </button>
+        </form>
     </div>
     </div>

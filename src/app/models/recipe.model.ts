@@ -1,21 +1,28 @@
+export interface Comment {
+  userName: string;
+  text: string;
+  date?: any;
+}
+
 export interface Recipe {
   id?: string;
   title: string;
   description: string;
   imageUrl: string;
   category: string;
-  authorId: string;
-  createdAt: any;
+  difficulty: string;
+  prepTime: number;
+  servings: number;
+  ingredients: string[];
+  steps: string[];
+  views: number;
+  rating: number;       // Promedio real (ej: 4.5)
+  ratingCount: number;  // Total de votos (ej: 120)
+  
+  // 👇 NUEVOS CAMPOS DEL AUTOR
+  authorName: string;   // Ej: "María García"
+  authorId?: string;    // ID del usuario para ir a su perfil
+  authorPhoto?: string; // Foto del autor (opcional)
 
-  // Campos opcionales para el diseño detallado
-  difficulty?: string;    // Para el badge "Intermedio"
-  prepTime?: number;      // Para el tiempo "25 min"
-  servings?: number;
-  ingredients?: string[];
-  steps?: string[];
-  
-  
-  rating?: number;        // Ej: 4.5
-  ratingCount?: number;   // Ej: 14
-  views?: number;         // Ej: 1153
+  comments?: Comment[];
 }
