@@ -1,74 +1,92 @@
+/* --- CONFIGURACIÓN DE SWIPER --- */
 swiper-container {
-  --swiper-pagination-color: #f97316; /* Tu naranja chefly */
+  --swiper-pagination-color: #f97316; 
   --swiper-pagination-bullet-inactive-color: #ffffff;
   --swiper-pagination-bullet-inactive-opacity: 0.5;
   --swiper-pagination-bullet-size: 10px;
-  
-  // Mejora el cursor al pasar por el banner
   cursor: grab;
   &:active { cursor: grabbing; }
 }
 
-// Estilo para el título de sección con el ícono
-h2 {
-  letter-spacing: -0.025em;
-}
-
+/* --- ANIMACIONES DE TEXTO --- */
 @keyframes typing {
   from { width: 0; visibility: hidden; }
   to { width: 100%; }
 }
-
 @keyframes blink {
   50% { border-color: transparent; }
-  100% { border-color: #f97316; } // Color naranja chefly
-}
-
-.animate-typing {
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 4px solid #f97316; // El cursor de la escritura
-  animation: typing 3s steps(30) infinite alternate, blink .7s infinite;
-}
-
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
-}
-
-@keyframes blink {
-  50% { border-color: transparent }
+  100% { border-color: #f97316; }
 }
 
 .typing-container {
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
-  border-right: 4px solid #f97316; // Cursor naranja
+  border-right: 4px solid #f97316;
   animation: typing 2s steps(20) infinite alternate, blink .7s infinite;
   vertical-align: bottom;
 }
-section.sticky {
-  // Asegura que el contenido no se desborde y la animación de tipado se vea bien
-  overflow: hidden;
-  
-  // Sombra para que se note cuando una sección empieza a cubrir a la otra
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 10px;
-    box-shadow: inset 0 10px 20px -10px rgba(0,0,0,0.3);
-    pointer-events: none;
+section {
+  position: relative;
+  z-index: 1;
+}
+/* --- FONDO DE ORBES DINÁMICO --- */
+@keyframes mesh-rotate {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(20vw, 10vh) scale(1.3) rotate(180deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+}
+
+.neon-orb {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  animation: mesh-rotate 20s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+
+  /* MODO CLARO */
+  mix-blend-mode: multiply;
+  opacity: 0.25;
+  filter: blur(100px);
+
+  /* MODO NOCHE */
+  :host-context(.dark) & {
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    filter: blur(130px) brightness(1.3);
   }
 }
 
-// Mantener tu animación de typing que configuramos antes
-.animate-typing {
+.animation-delay-2000 { animation-delay: -2s; }
+.animation-delay-5000 { animation-delay: -5s; }
+
+/* --- TEXTO Y TIPADO --- */
+@keyframes typing { from { width: 0 } to { width: 100% } }
+@keyframes blink { 50% { border-color: transparent } }
+
+.typing-container {
+  display: inline-block;
   overflow: hidden;
   white-space: nowrap;
   border-right: 4px solid #f97316;
-  animation: typing 3s steps(30) infinite alternate, blink .7s infinite;
+  animation: typing 2s steps(20) infinite alternate, blink .7s infinite;
+  vertical-align: bottom;
+}
+
+/* --- MARQUESINA --- */
+@keyframes elegant-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.animate-marquee-news {
+  display: flex;
+  width: max-content;
+  animation: elegant-marquee 60s linear infinite;
+  &:hover { animation-play-state: paused; }
+}
+
+/* --- SWIPER --- */
+swiper-container {
+  --swiper-pagination-color: #f97316;
+  --swiper-pagination-bullet-inactive-color: #ffffff;
 }

@@ -13,7 +13,7 @@ import {
 } from '@angular/fire/firestore';
 import { AsyncPipe, NgFor, NgIf, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable, map, BehaviorSubject, combineLatest } from 'rxjs'; 
 import { Recipe } from '../../models/recipe.model';
 import { register } from 'swiper/element/bundle';
 import { AuthService } from '../../services/auth';
@@ -33,13 +33,27 @@ export class HomeComponent {
   private authService = inject(AuthService);
   private firestore = inject(Firestore);
 
+  // Observables básicos
   user$: Observable<User | null> = this.authService.user$;
   featuredRecipes$: Observable<Recipe[]>;
-  recipes$: Observable<Recipe[]>;
   tip$: Observable<any>;
   titles$: Observable<string[]>;
+  
+  // --- LÓGICA DE BUSCADOR Y FILTROS ---
+  
+  // 1. Fuente de todas las recetas (Sin filtrar)
+  private allRecipes$: Observable<Recipe[]>;
 
-  currentUserData: any = null; // Aquí guardamos tu nombre real de Firestore
+  // 2. Controladores de los filtros
+  searchTerm$ = new BehaviorSubject<string>(''); 
+  categoryFilter$ = new BehaviorSubject<string>(''); 
+
+  // 3. Resultados Finales
+  filteredRecipes$: Observable<Recipe[]>; 
+  searchResults$: Observable<Recipe[]>;   
+  recipes$: Observable<Recipe[]>; // <--- DECLARADA PARA EVITAR EL ERROR EN EL HTML
+
+  currentUserData: any = null;
 
   categoryStyles: { [key: string]: string } = {
     'tecnica': 'bg-blue-50 border-blue-100 text-blue-800',
@@ -49,10 +63,34 @@ export class HomeComponent {
     'general': 'bg-gray-50 border-gray-100 text-gray-800'
   };
 
+  foodAvatars: string[] = [
+    'https://cdn-icons-png.flaticon.com/512/3075/3075977.png', 
+    'https://cdn-icons-png.flaticon.com/512/1404/1404945.png', 
+    'https://cdn-icons-png.flaticon.com/512/4727/4727450.png', 
+    'https://cdn-icons-png.flaticon.com/512/2515/2515228.png', 
+    'https://cdn-icons-png.flaticon.com/512/3143/3143643.png', 
+    'https://cdn-icons-png.flaticon.com/512/1134/1134447.png', 
+    'https://cdn-icons-png.flaticon.com/512/3274/3274099.png', 
+    'https://cdn-icons-png.flaticon.com/512/2819/2819194.png'  
+  ];
+  // En tu clase HomeComponent
+getRandomPhrase(recipeTitle: string): string {
+  const phrases = [
+    `Chefly hoy te recomienda comer: ${recipeTitle}`,
+    `¡Qué rico! ¿No se te antoja hoy ${recipeTitle}?`,
+    `Dale un gusto a tu paladar con: ${recipeTitle}`,
+    `Hoy es el día perfecto para cocinar: ${recipeTitle}`,
+    `¿Sin ideas? Chefly dice: ${recipeTitle}`,
+    `¡Directo al corazón! Prueba hoy: ${recipeTitle}`
+  ];
+  // Usamos el nombre de la receta para que siempre le toque la misma frase y no parpadee
+  const index = recipeTitle.length % phrases.length;
+  return phrases[index];
+}
+
   constructor() {
     const recipesCol = collection(this.firestore, 'recipes');
 
-    // Escuchamos al usuario y cargamos sus datos de Firestore
     this.authService.user$.subscribe(user => {
       if (user) {
         this.authService.getUserData(user.uid).subscribe((data: any) => {
@@ -63,7 +101,38 @@ export class HomeComponent {
 
     const featuredQuery = query(recipesCol, orderBy('views', 'desc'), limit(4));
     this.featuredRecipes$ = collectionData(featuredQuery, { idField: 'id' }) as Observable<Recipe[]>;
-    this.recipes$ = collectionData(query(recipesCol), { idField: 'id' }) as Observable<Recipe[]>;
+
+    // Traemos TODAS las recetas de la colección
+    this.allRecipes$ = collectionData(query(recipesCol), { idField: 'id' }) as Observable<Recipe[]>;
+
+    // Lógica para filtrar el Grid por Categoría
+    this.filteredRecipes$ = combineLatest([
+      this.allRecipes$,
+      this.categoryFilter$
+    ]).pipe(
+      map(([recipes, category]) => {
+        if (!category) return recipes;
+        return recipes.filter(r => r.category === category);
+      })
+    );
+
+    // ASIGNACIÓN: Hacemos que recipes$ use el flujo filtrado para que el HTML no falle
+    this.recipes$ = this.filteredRecipes$;
+
+    // Lógica para el buscador (Dropdown)
+    this.searchResults$ = combineLatest([
+      this.allRecipes$,
+      this.searchTerm$
+    ]).pipe(
+      map(([recipes, term]) => {
+        const cleanTerm = term.toLowerCase().trim();
+        if (!cleanTerm) return []; 
+        return recipes.filter(r => 
+          r.title.toLowerCase().includes(cleanTerm) || 
+          r.category?.toLowerCase().includes(cleanTerm)
+        ).slice(0, 5); 
+      })
+    );
 
     const tipsCol = collection(this.firestore, 'tips');
     this.tip$ = collectionData(tipsCol, { idField: 'id' }).pipe(
@@ -77,6 +146,18 @@ export class HomeComponent {
     );
 
     this.titles$ = this.featuredRecipes$.pipe(map(recipes => recipes.map(r => r.title)));
+  }
+
+  onSearch(event: any) {
+    this.searchTerm$.next(event.target.value);
+  }
+
+  filterByCategory(category: string) {
+    if (this.categoryFilter$.value === category) {
+      this.categoryFilter$.next(''); 
+    } else {
+      this.categoryFilter$.next(category);
+    }
   }
 
   getTipStyle(category: string): string {
@@ -100,13 +181,9 @@ export class HomeComponent {
   async addComment(tipId: string, commentInput: HTMLInputElement) {
     const text = commentInput.value.trim();
     const user = this.authService.getCurrentUser();
-
     if (!text || !tipId || !user) return;
-
-    // LÓGICA DE NOMBRE REAL: Prioridad Firestore > Google > Email
     const finalName = this.currentUserData?.displayName || user.displayName || user.email?.split('@')[0] || 'Cocinero';
     const finalPhoto = this.currentUserData?.photoURL || user.photoURL || 'assets/default-avatar.png';
-
     const tipRef = doc(this.firestore, 'tips', tipId);
     try {
       await updateDoc(tipRef, {
@@ -127,25 +204,19 @@ export class HomeComponent {
   async reactToTip(tipId: string, type: 'love' | 'like' | 'wow') {
     const reactedTips = JSON.parse(localStorage.getItem('reactedTips') || '{}');
     if (!tipId || reactedTips[tipId]) return;
-
     const tipRef = doc(this.firestore, 'tips', tipId);
     try {
       await updateDoc(tipRef, { [`reactions.${type}`]: increment(1) });
       reactedTips[tipId] = type; 
       localStorage.setItem('reactedTips', JSON.stringify(reactedTips));
-    } catch (error) {
-      console.error("Error al reaccionar:", error);
-    }
+    } catch (error) { console.error("Error al reaccionar:", error); }
   }
 
   async trackView(recipeId: string | undefined) {
     if (!recipeId) return;
     const recipeRef = doc(this.firestore, 'recipes', recipeId);
-    try {
-      await updateDoc(recipeRef, { views: increment(1) });
-    } catch (error) {
-      console.error("Error al actualizar vistas:", error);
-    }
+    try { await updateDoc(recipeRef, { views: increment(1) }); } 
+    catch (error) { console.error("Error al actualizar vistas:", error); }
   }
 
   login() { this.authService.loginWithGoogle(); }
@@ -154,5 +225,13 @@ export class HomeComponent {
     if (window.confirm("¿Estás seguro de que quieres cerrar sesión?")) {
       this.authService.logout();
     }
+  }
+
+  getUserImage(uid: string | undefined, photoURL: string | null | undefined): string {
+    if (photoURL && photoURL.length > 10) return photoURL;
+    if (!uid) return this.foodAvatars[0];
+    let sum = 0;
+    for (let i = 0; i < uid.length; i++) sum += uid.charCodeAt(i);
+    return this.foodAvatars[sum % this.foodAvatars.length];
   }
 }
