@@ -4,6 +4,7 @@ import { Router, RouterLink,RouterLinkActive } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth';
 
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -13,9 +14,9 @@ import { AuthService } from '../../services/auth';
 export class NavbarComponent implements OnInit {
   public authService = inject(AuthService);
   private router = inject(Router);
-  
+currentUserData: any = null;
   user$ = this.authService.user$;
-  
+
   // Estados de Accesibilidad
   isDarkMode = false;
   showAccessMenu = false;
@@ -25,10 +26,20 @@ export class NavbarComponent implements OnInit {
     // 1. Cargar preferencias guardadas al iniciar
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.fontSize = (localStorage.getItem('fontSize') as any) || 'medium';
-    
+
     // 2. Aplicar configuraciones al DOM
     this.applyTheme();
     this.applyFontSize();
+
+    this.authService.user$.subscribe(user => {
+      if (user) {
+        this.authService.getUserData(user.uid).subscribe(data => {
+          this.currentUserData = data;
+        });
+      } else {
+        this.currentUserData = null; // Si se desloguea, borramos los datos
+      }
+    });
   }
 
   // --- MÉTODOS DE TEMA ---
@@ -43,7 +54,7 @@ export class NavbarComponent implements OnInit {
     if (this.isDarkMode) {
       root.classList.add('dark');
       // Esto elimina cualquier "espacio en blanco" que Tailwind no alcance a cubrir
-      document.body.style.backgroundColor = 'oklch(0.145 0 0)'; 
+      document.body.style.backgroundColor = 'oklch(0.145 0 0)';
     } else {
       root.classList.remove('dark');
       document.body.style.backgroundColor = '#F8FAFC'; // chefly.gray
@@ -64,10 +75,10 @@ export class NavbarComponent implements OnInit {
 
   private applyFontSize() {
     const root = document.documentElement;
-    const sizes = { 
-      small: '14px', 
-      medium: '16px', 
-      large: '20px' 
+    const sizes = {
+      small: '14px',
+      medium: '16px',
+      large: '20px'
     };
     root.style.fontSize = sizes[this.fontSize];
   }

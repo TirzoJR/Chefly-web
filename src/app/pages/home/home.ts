@@ -30,7 +30,7 @@ register();
   styleUrl: './home.scss'
 })
 export class HomeComponent {
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
   private firestore = inject(Firestore);
 
   // Observables para el HTML

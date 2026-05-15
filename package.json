@@ -34,6 +34,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.26.24",
     "swiper": "^12.1.1",
     "tslib": "^2.3.0",
     "zone.js": "^0.16.0"

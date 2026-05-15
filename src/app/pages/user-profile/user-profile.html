@@ -2,17 +2,17 @@
      [ngClass]="{'text-sm': fontSize === 'small', 'text-base': fontSize === 'medium', 'text-xl': fontSize === 'large'}">
 
   <div class="max-w-7xl mx-auto px-4 py-8" *ngIf="user$ | async as authUser; else loading">
-    
+
     <div class="bg-white dark:bg-dark-card rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-dark-border p-8 mb-6" *ngIf="userData$ | async as data">
       <div class="flex flex-col md:flex-row items-center gap-6">
-        
+
         <div class="w-32 h-32 rounded-full bg-gradient-to-tr from-orange-500 to-orange-300 flex items-center justify-center text-white text-4xl font-bold shadow-lg overflow-hidden border-4 border-white dark:border-dark-border">
           <img *ngIf="authUser.photoURL" [src]="authUser.photoURL" class="w-full h-full object-cover">
           <span *ngIf="!authUser.photoURL">
             {{ getInitials(authUser.displayName) }}
           </span>
         </div>
-        
+
         <div class="text-center md:text-left flex-1">
           <h1 class="text-4xl font-black text-gray-900 dark:text-dark-text tracking-tighter italic">
             @{{ getFirstName(authUser.displayName) }}
@@ -25,52 +25,46 @@
 
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-  
-  <div class="bg-orange-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-orange-100 dark:border-dark-border transition-colors">
-    <p class="text-orange-600 font-black text-2xl">
-      {{ recipesCount }}
-    </p>
-    <p class="text-orange-400 text-[10px] font-black uppercase tracking-widest">Recetas</p>
-  </div>
 
-  <div class="bg-blue-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-blue-100 dark:border-dark-border transition-colors">
-    <p class="text-blue-600 font-black text-2xl">
-      {{ followersCount }}
-    </p>
-    <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest">Seguidores</p>
-  </div>
+        <div class="bg-orange-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-orange-100 dark:border-dark-border transition-colors">
+          <p class="text-orange-600 font-black text-2xl">{{ recipesCount }}</p>
+          <p class="text-orange-400 text-[10px] font-black uppercase tracking-widest">Recetas</p>
+        </div>
 
-  <div class="bg-pink-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-pink-100 dark:border-dark-border transition-colors">
-    <p class="text-pink-600 font-black text-2xl">
-      {{ favoritesCount }}
-    </p>
-    <p class="text-pink-400 text-[10px] font-black uppercase tracking-widest">Favoritos</p>
-  </div>
+        <div class="bg-blue-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-blue-100 dark:border-dark-border transition-colors">
+          <p class="text-blue-600 font-black text-2xl">{{ totalViews }}</p>
+          <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest">Vistas Totales</p>
+        </div>
 
-  <div class="bg-purple-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-purple-100 dark:border-dark-border transition-colors">
-    <p class="text-purple-600 font-black text-2xl">
-      {{ tipReactionsCount }}
-    </p>
-    <p class="text-purple-400 text-[10px] font-black uppercase tracking-widest">Me Gusta</p>
-  </div>
+        <div class="bg-pink-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-pink-100 dark:border-dark-border transition-colors">
+          <p class="text-pink-600 font-black text-2xl">{{ totalLikes }}</p>
+          <p class="text-pink-400 text-[10px] font-black uppercase tracking-widest">Me Gusta</p>
+        </div>
 
-</div>
+        <div class="bg-purple-50 dark:bg-dark-bg p-4 rounded-3xl text-center border border-purple-100 dark:border-dark-border transition-colors">
+          <p class="text-purple-600 font-black text-2xl">{{ tipReactionsCount }}</p>
+          <p class="text-purple-400 text-[10px] font-black uppercase tracking-widest">Tips Favs</p>
+        </div>
+
+      </div>
     </div>
 
-    <div class="bg-white/80 dark:bg-dark-card/80 rounded-2xl p-1.5 flex mb-8 w-full sticky top-20 z-40 backdrop-blur-md border border-gray-100 dark:border-dark-border shadow-sm">
-      <button (click)="activeTab = 'info'" [class]="activeTab === 'info' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Perfil</button>
-      <button (click)="activeTab = 'recipes'" [class]="activeTab === 'recipes' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Mis Recetas</button>
-      <button (click)="activeTab = 'favorites'" [class]="activeTab === 'favorites' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Favoritos</button>
-      <button (click)="activeTab = 'settings'" [class]="activeTab === 'settings' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Ajustes</button>
+    <div class="bg-white/80 dark:bg-dark-card/80 rounded-2xl p-1.5 flex flex-wrap mb-8 w-full sticky top-20 z-40 backdrop-blur-md border border-gray-100 dark:border-dark-border shadow-sm">
+      <button (click)="activeTab = 'info'" [class]="activeTab === 'info' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 px-2 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all">Perfil</button>
+      <button (click)="activeTab = 'recipes'" [class]="activeTab === 'recipes' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 px-2 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all">Recetas</button>
+      <button (click)="activeTab = 'favorites'" [class]="activeTab === 'favorites' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 px-2 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all">Favs</button>
+      <button (click)="activeTab = 'network'" [class]="activeTab === 'network' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 px-2 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all">Comunidad</button>
+
+      <button (click)="activeTab = 'settings'" [class]="activeTab === 'settings' ? 'bg-chefly-orange text-white shadow-lg' : 'text-gray-500 dark:text-dark-secondary'" class="flex-1 py-3 px-2 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all">Ajustes</button>
     </div>
 
     <div [ngSwitch]="activeTab">
-      
+
       <div *ngSwitchCase="'info'" class="space-y-6 animate-fadeIn">
         <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-dark-border relative shadow-sm">
           <button (click)="toggleEditBio()" class="absolute top-8 right-8 bg-gray-50 dark:bg-dark-bg px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border dark:border-dark-border hover:bg-orange-50 transition-colors">Editar Bio</button>
           <h3 class="text-2xl font-black mb-8 italic tracking-tighter">Sobre mí</h3>
-          
+
           <div class="space-y-8">
             <div>
               <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block mb-2">Biografía</label>
@@ -97,6 +91,55 @@
         </div>
       </div>
 
+      <div *ngSwitchCase="'network'" class="animate-fadeIn space-y-8">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-dark-border shadow-sm">
+            <h3 class="text-2xl font-black mb-2 tracking-tighter">Mis Seguidores ({{ followersCount }})</h3>
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-6">Chefs que aman tus recetas</p>
+
+            <div *ngIf="followersUsers$ | async as followers">
+              <div *ngIf="followers.length > 0; else noFollowers" class="space-y-4">
+                <div *ngFor="let f of followers" class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent hover:border-gray-200 dark:hover:border-dark-border transition-colors">
+                  <img [src]="f.photoURL || 'assets/default-avatar.png'" class="w-12 h-12 rounded-full object-cover shadow-sm">
+                  <div>
+                    <p class="font-black text-gray-900 dark:text-dark-text">{{ f.displayName || 'Chef' }}</p>
+                    <p class="text-[10px] text-gray-400 font-bold">@{{ getFirstName(f.displayName) }}</p>
+                  </div>
+                  <a [routerLink]="['/perfil', f.uid]" class="ml-auto text-xs font-bold text-chefly-orange hover:underline cursor-pointer">Ver</a>
+                </div>
+              </div>
+              <ng-template #noFollowers>
+                <p class="text-sm text-gray-400 italic text-center py-6">Aún no tienes seguidores. ¡Publica más recetas!</p>
+              </ng-template>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-dark-border shadow-sm">
+            <h3 class="text-2xl font-black mb-2 tracking-tighter">Siguiendo ({{ followingCount }})</h3>
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-6">Tus inspiraciones culinarias</p>
+
+            <div *ngIf="followingUsers$ | async as following">
+              <div *ngIf="following.length > 0; else noFollowing" class="space-y-4">
+                <div *ngFor="let f of following" class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent hover:border-gray-200 dark:hover:border-dark-border transition-colors">
+                  <img [src]="f.photoURL || 'assets/default-avatar.png'" class="w-12 h-12 rounded-full object-cover shadow-sm">
+                  <div>
+                    <p class="font-black text-gray-900 dark:text-dark-text">{{ f.displayName || 'Chef' }}</p>
+                    <p class="text-[10px] text-gray-400 font-bold">@{{ getFirstName(f.displayName) }}</p>
+                  </div>
+                  <a [routerLink]="['/perfil', f.uid]" class="ml-auto text-xs font-bold text-chefly-orange hover:underline cursor-pointer">Ver</a>
+                </div>
+              </div>
+              <ng-template #noFollowing>
+                <p class="text-sm text-gray-400 italic text-center py-6">Aún no sigues a nadie. ¡Explora el inicio!</p>
+              </ng-template>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <div *ngSwitchCase="activeTab === 'recipes' ? 'recipes' : 'favorites'" class="animate-fadeIn">
         <div *ngIf="(activeTab === 'recipes' ? myRecipes$ : favoriteRecipes$) | async as recipes; else noData">
           <div *ngIf="recipes.length > 0; else noData" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -114,7 +157,7 @@
                 </div>
                 <p class="text-gray-500 dark:text-dark-secondary text-sm line-clamp-2 mb-6 italic leading-relaxed">{{ recipe.description }}</p>
                 <div class="flex items-center justify-between text-gray-400 text-[10px] font-black uppercase tracking-tighter pt-4 border-t dark:border-dark-border mt-auto">
-                  <span class="flex items-center gap-1">⏱️ {{ recipe.prepTime }} min</span>
+                  <span class="flex items-center gap-1">⏱️ {{ recipe.time || recipe.prepTime || 0 }} min</span>
                   <span class="flex items-center gap-1 text-yellow-500">★ {{ recipe.rating || 0 }}</span>
                   <span class="flex items-center gap-1">👁️ {{ recipe.views || 0 }}</span>
                 </div>
@@ -152,7 +195,11 @@
         </div>
       </div>
 
-    </div> </div> </div> <ng-template #noData>
+    </div>
+  </div>
+</div>
+
+<ng-template #noData>
   <div class="text-center py-24 bg-white dark:bg-dark-card rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-dark-border animate-fadeIn">
     <span class="text-7xl block mb-6 grayscale opacity-40 italic">🥘</span>
     <p class="text-xl font-black text-gray-400 italic tracking-tighter">Parece que aún no tienes nada por aquí...</p>
