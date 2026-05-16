@@ -1,0 +1,337 @@
+<div class="min-h-screen bg-gray-50 dark:bg-[#0F172A] flex transition-colors duration-300">
+
+  <aside class="w-64 bg-white dark:bg-[#1E293B] border-r border-gray-100 dark:border-gray-800 flex flex-col transition-transform duration-300 shrink-0"
+         [ngClass]="{'translate-x-0': isSidebarOpen, '-translate-x-full fixed h-full z-50': !isSidebarOpen, 'hidden md:flex': !isSidebarOpen}">
+
+    <div class="p-8 flex items-center justify-between border-b border-gray-50 dark:border-gray-800">
+      <h2 class="text-3xl font-black italic text-chefly-orange tracking-tighter">Chefly<span class="text-gray-900 dark:text-white">VIP</span></h2>
+      <button (click)="isSidebarOpen = false" class="md:hidden text-gray-500 text-xl font-bold">✕</button>
+    </div>
+
+    <nav class="flex-1 px-4 py-6 space-y-3">
+      <button (click)="activeTab = 'dashboard'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'dashboard', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'dashboard'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+        <span class="text-xl">📊</span> Resumen
+      </button>
+      <button (click)="activeTab = 'users'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'users', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'users'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+        <span class="text-xl">👥</span> Usuarios
+      </button>
+      <button (click)="activeTab = 'recipes'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'recipes', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'recipes'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+        <span class="text-xl">🥘</span> Recetas
+      </button>
+      <button (click)="activeTab = 'reports'" [ngClass]="{'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': activeTab === 'reports', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'reports'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+        <span class="text-xl">🚩</span> Moderación
+      </button>
+      <button (click)="activeTab = 'messages'" [ngClass]="{'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400': activeTab === 'messages', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'messages'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+        <span class="text-xl">📢</span> Mensajes Globales
+      </button>
+    </nav>
+
+    <div class="p-6 border-t border-gray-50 dark:border-gray-800">
+      <a routerLink="/" class="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-chefly-orange transition-colors">
+        ← Volver a Chefly
+      </a>
+    </div>
+  </aside>
+
+  <main class="flex-1 h-screen overflow-y-auto p-4 md:p-10 w-full relative">
+
+    <div class="mb-10 flex items-center gap-4">
+      <button (click)="isSidebarOpen = !isSidebarOpen" class="p-3 bg-white dark:bg-[#1E293B] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 md:hidden">
+        <svg class="w-6 h-6 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <div>
+        <h1 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Panel de Control</h1>
+        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Gestión administrativa</p>
+      </div>
+    </div>
+
+    <div [ngSwitch]="activeTab" class="animate-fadeIn max-w-6xl">
+
+      <div *ngSwitchCase="'dashboard'" class="space-y-8 animate-fadeIn">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6">
+          <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 text-xl">👥</div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Usuarios Totales</p>
+            </div>
+            <div>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ totalUsers }}</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +12% este mes</p>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500 text-xl">🟢</div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Activos</p>
+            </div>
+            <div>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ activeUsers }}</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +8% este mes</p>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 text-xl">🥘</div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Recetas</p>
+            </div>
+            <div>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ totalRecipes }}</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +156 semana</p>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 text-xl">🚩</div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Reportes</p>
+            </div>
+            <div>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ pendingReports }}</p>
+              <p class="text-[11px] font-bold text-red-500 mt-2 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md inline-block">Pendientes</p>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center text-yellow-500 text-xl">⭐</div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Calificación</p>
+            </div>
+            <div>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ avgRating }}</p>
+              <p class="text-[11px] font-bold text-gray-500 mt-2 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md inline-block">Promedio general</p>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-500 text-xl">👁️</div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Visitas Hoy</p>
+            </div>
+            <div>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ visitsToday }}</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +15% vs ayer</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white dark:bg-[#1E293B] p-8 rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none">
+            <div class="mb-6">
+              <h3 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Crecimiento de Usuarios y Recetas</h3>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Últimos 6 meses</p>
+            </div>
+            <apx-chart *ngIf="chartOptionsLine"
+              [series]="chartOptionsLine.series"
+              [chart]="chartOptionsLine.chart"
+              [xaxis]="chartOptionsLine.xaxis"
+              [stroke]="chartOptionsLine.stroke"
+              [dataLabels]="chartOptionsLine.dataLabels"
+              [fill]="chartOptionsLine.fill"
+              [colors]="chartOptionsLine.colors"
+              [grid]="chartOptionsLine.grid">
+            </apx-chart>
+          </div>
+
+          <div class="bg-white dark:bg-[#1E293B] p-8 rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col">
+            <div class="mb-6">
+              <h3 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Distribución por Categoría</h3>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Total de recetas</p>
+            </div>
+            <div class="flex-1 flex items-center justify-center">
+              <apx-chart *ngIf="chartOptionsPie" class="w-full"
+                [series]="chartOptionsPie.series"
+                [chart]="chartOptionsPie.chart"
+                [labels]="chartOptionsPie.labels"
+                [colors]="chartOptionsPie.colors"
+                [plotOptions]="chartOptionsPie.plotOptions"
+                [dataLabels]="chartOptionsPie.dataLabels"
+                [legend]="chartOptionsPie.legend">
+              </apx-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'users'">
+        <div class="bg-white dark:bg-[#1E293B] rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+          <div class="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+            <h3 class="text-xl font-black dark:text-white tracking-tighter">Lista de Usuarios</h3>
+            <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">Top 50</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-max">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-400 uppercase tracking-widest">
+                  <th class="p-5 font-bold">Usuario</th>
+                  <th class="p-5 font-bold text-center">Permisos</th>
+                  <th class="p-5 font-bold text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of users$ | async" class="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors border-b border-gray-50 dark:border-gray-800/50 last:border-none">
+                  <td class="p-5">
+                    <div class="flex items-center gap-4">
+                      <img [src]="user.photoURL || 'assets/default-avatar.png'" class="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm">
+                      <div>
+                        <p class="font-bold text-gray-900 dark:text-white">{{ user.displayName || 'Chef Misterioso' }}</p>
+                        <p class="text-xs text-gray-500 font-medium">{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-5 text-center">
+                    <span [ngClass]="user.role === 'admin' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-200'" class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border">
+                      {{ user.role || 'user' }}
+                    </span>
+                  </td>
+                  <td class="p-5 text-right">
+                    <div class="flex justify-end gap-2">
+                      <button (click)="toggleAdminRole(user.uid, user.role)" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-blue-900/20 dark:text-blue-400">
+                        {{ user.role === 'admin' ? 'Quitar VIP' : 'Hacer VIP' }}
+                      </button>
+                      <button (click)="deleteUser(user.uid, user.displayName)" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-red-900/20 dark:text-red-400">
+                        Banear
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'recipes'">
+        <div class="bg-white dark:bg-[#1E293B] rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+          <div class="p-8 border-b border-gray-100 dark:border-gray-800">
+            <h3 class="text-xl font-black dark:text-white tracking-tighter">Explorador de Recetas</h3>
+            <p class="text-xs text-gray-400 font-bold mt-1 uppercase tracking-widest">Ordenadas por popularidad</p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-max">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-400 uppercase tracking-widest">
+                  <th class="p-5 font-bold">Platillo</th>
+                  <th class="p-5 font-bold text-center">Rendimiento</th>
+                  <th class="p-5 font-bold text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let recipe of recipes$ | async" class="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors border-b border-gray-50 dark:border-gray-800/50 last:border-none">
+                  <td class="p-5">
+                    <div class="flex items-center gap-4">
+                      <img [src]="recipe.imageUrl || 'https://via.placeholder.com/150'" class="w-16 h-16 rounded-2xl object-cover shadow-sm">
+                      <div>
+                        <p class="font-bold text-gray-900 dark:text-white text-base">{{ recipe.title }}</p>
+                        <p class="text-xs text-gray-500 font-bold mt-1">Por: {{ recipe.authorName || 'Desconocido' }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-5 text-center">
+                    <div class="flex items-center justify-center gap-4">
+                      <span class="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg border dark:border-gray-700">👁️ {{ recipe.views || 0 }}</span>
+                      <span class="text-xs font-bold text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1.5 rounded-lg border border-yellow-100 dark:border-yellow-900/50">★ {{ recipe.rating || 0 }}</span>
+                    </div>
+                  </td>
+                  <td class="p-5 text-right">
+                    <a [routerLink]="['/recipe', recipe.id]" target="_blank" class="inline-block mr-2 px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-xs font-bold transition-colors dark:bg-gray-800 dark:text-gray-300">Ver</a>
+                    <button (click)="deleteRecipe(recipe.id)" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-red-900/20 dark:text-red-400">Eliminar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'reports'">
+        <div class="bg-white dark:bg-[#1E293B] rounded-[2.5rem] shadow-sm border border-red-100 dark:border-red-900/30 overflow-hidden relative">
+          <div class="absolute -top-10 -right-10 text-[120px] opacity-5 pointer-events-none">🚩</div>
+
+          <div class="p-8 border-b border-red-50 dark:border-red-900/20 relative z-10">
+            <h3 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Bandeja de Reportes</h3>
+            <p class="text-xs text-red-500 font-bold uppercase tracking-widest mt-1">Alertas de la comunidad</p>
+          </div>
+
+          <div class="p-8 bg-red-50/30 dark:bg-red-900/5 relative z-10">
+            <div *ngIf="reports$ | async as reports">
+              <div *ngIf="reports.length === 0" class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-3xl py-16 text-center bg-white dark:bg-[#1E293B]">
+                  <span class="text-5xl block mb-4 grayscale opacity-40">👮‍♂️</span>
+                  <p class="font-bold text-gray-500 text-lg">No hay reportes pendientes.</p>
+                  <p class="text-xs text-gray-400 mt-2 font-bold uppercase tracking-widest">¡Tu comunidad está a salvo!</p>
+              </div>
+
+              <div class="space-y-4">
+                <div *ngFor="let report of reports" class="flex flex-col lg:flex-row justify-between items-center bg-white dark:bg-[#0F172A] p-6 rounded-3xl border border-red-100 dark:border-red-900/50 shadow-sm hover:shadow-md transition-shadow">
+                  <div class="mb-6 lg:mb-0 w-full lg:w-auto">
+                    <h4 class="text-xl font-black text-gray-900 dark:text-white">{{ report.recipeTitle }}</h4>
+                    <div class="flex items-center gap-3 mt-2">
+                      <span class="bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200 dark:border-red-800">
+                        {{ report.reason }}
+                      </span>
+                      <span class="text-xs font-bold text-gray-400 italic">Reportado el: {{ report.date | date:'dd MMM yyyy' }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-3 w-full lg:w-auto justify-end">
+                    <button (click)="ignoreReport(report.id)" class="flex-1 lg:flex-none px-6 py-3 bg-gray-50 dark:bg-[#1E293B] border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                      Ignorar Alerta
+                    </button>
+                    <button (click)="deleteReportedRecipe(report.recipeId, report.id)" class="flex-1 lg:flex-none px-6 py-3 bg-red-500 text-white rounded-2xl font-black shadow-lg shadow-red-500/30 hover:bg-red-600 transition-all active:scale-95">
+                      Banear Receta
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'messages'" class="animate-fadeIn">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+          <div class="bg-white dark:bg-[#1E293B] rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 p-8 h-fit">
+            <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">Enviar Mensaje Global</h3>
+            <p class="text-xs text-gray-400 font-bold mt-1 uppercase tracking-widest mb-8">Envía notificaciones a todos los usuarios</p>
+
+            <div class="space-y-6">
+              <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Título del Mensaje</label>
+                <input type="text" [(ngModel)]="newMessageTitle" placeholder="Ej: Mantenimiento programado, Nueva función..." class="w-full p-4 bg-gray-50 dark:bg-[#0F172A] rounded-2xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none text-sm dark:text-white transition-all">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Mensaje</label>
+                <textarea [(ngModel)]="newMessageBody" rows="4" placeholder="Escribe tu mensaje aquí..." class="w-full p-4 bg-gray-50 dark:bg-[#0F172A] rounded-2xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none text-sm dark:text-white transition-all"></textarea>
+                <p class="text-[10px] font-bold text-gray-400 mt-2 italic">Este mensaje será enviado a todos los usuarios registrados.</p>
+              </div>
+              <button (click)="sendGlobalMessage()" class="w-full bg-gray-900 dark:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform uppercase tracking-widest text-xs flex justify-center items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                Enviar a Todos los Usuarios
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-[#1E293B] rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+            <h3 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Mensajes Recientes</h3>
+            <p class="text-xs text-gray-400 font-bold mt-1 uppercase tracking-widest mb-8">Historial de envíos</p>
+
+            <div class="space-y-4">
+              <div *ngIf="(messages$ | async)?.length === 0" class="text-center py-10 opacity-50">
+                  <span class="text-5xl block mb-4 grayscale opacity-40">📭</span>
+                  <p class="italic font-bold text-gray-400">Aún no has enviado mensajes globales.</p>
+              </div>
+
+              <div *ngFor="let msg of messages$ | async" class="bg-gray-50 dark:bg-[#0F172A] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-blue-100 transition-colors shadow-sm">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-bold text-gray-900 dark:text-white text-sm">{{ msg.title }}</h4>
+                  <span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ msg.status || 'Enviado' }}</span>
+                </div>
+                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">"{{ msg.body }}"</p>
+                <p class="text-[10px] font-bold text-gray-400 italic">Enviado el: {{ msg.date | date:'medium' }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>

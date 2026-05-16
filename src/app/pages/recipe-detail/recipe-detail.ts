@@ -1,25 +1,26 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth';
-import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { Component, inject, OnInit } from '@angular/core';
 import {
-  Firestore,
+  addDoc // 👈 IMPORTANTE: Agregamos addDoc para poder guardar el reporte
+  ,
+  arrayUnion,
+  collection,
+  deleteDoc,
   doc,
   docData,
-  updateDoc,
-  arrayUnion,
+  Firestore,
+  getCountFromServer,
   increment,
-  deleteDoc,
-  collection,
   query,
-  where,
-  getCountFromServer
+  updateDoc,
+  where
 } from '@angular/fire/firestore';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth';
 
-import { Observable, switchMap, tap, of, map } from 'rxjs';
+import { map, Observable, of, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -38,6 +39,9 @@ export class RecipeDetailComponent implements OnInit {
   activeTab: 'recipe' | 'comments' | 'info' = 'recipe';
   newComment = '';
   showReportModal = false;
+
+  // 👈 NUEVO: Variable para saber por qué reportaron la receta
+  reportReason: string = '';
 
   recipe$: Observable<any> | undefined;
   currentUserData: any = null;
@@ -62,7 +66,6 @@ export class RecipeDetailComponent implements OnInit {
         return docData(doc(this.firestore, `recipes/${id}`), { idField: 'id' }).pipe(
           map((recipe: any) => {
             if (!recipe) return null;
-            // 👈 MAPEAMOS LOS NOMBRES PARA COMPATIBILIDAD CON APP MÓVIL
             return {
               ...recipe,
               time: recipe.time || recipe.prepTime || recipe.cookingTime || 0,
@@ -88,7 +91,6 @@ export class RecipeDetailComponent implements OnInit {
     });
   }
 
-  // --- FUNCIÓN DE FAVORITOS (CORREGIDA) ---
   async onToggleFavorite(recipeId: string): Promise<void> {
     const user = this.authService.getCurrentUser();
     if (!user) {
@@ -111,7 +113,6 @@ export class RecipeDetailComponent implements OnInit {
     }
   }
 
-  // --- LAS DEMÁS FUNCIONES NECESARIAS ---
   toggleStep(index: number) {
     if (this.completedSteps.includes(index)) {
       this.completedSteps = this.completedSteps.filter(i => i !== index);
@@ -142,6 +143,10 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   async rateRecipe(recipeId: string, rating: number) {
+    if (!this.currentUserData) {
+    this.authService.loginWithGoogle();
+    return;
+  }
      await updateDoc(doc(this.firestore, `recipes/${recipeId}`), {
        rating: rating,
        ratingCount: increment(1)
@@ -192,8 +197,40 @@ export class RecipeDetailComponent implements OnInit {
     return this.currentUserData.role === 'admin' || (recipe.uid || recipe.userId) === this.currentUserData.uid;
   }
 
-  openReportModal() { this.showReportModal = true; }
-  closeReportModal() { this.showReportModal = false; }
-  submitReport() { alert('Enviado'); this.closeReportModal(); }
+  openReportModal() {
+if (!this.currentUserData) {
+    this.authService.loginWithGoogle();
+    return;
+  }
+  this.showReportModal = true;
+    this.showReportModal = true; }
+
+  closeReportModal() {
+    this.showReportModal = false;
+    this.reportReason = ''; // Limpiamos la razón al cerrar
+  }
+
+  // 👈 NUEVO: Función de reporte actualizada conectada a Firebase
+  async submitReport(recipeId: string, recipeTitle: string) {
+    if (!this.reportReason) {
+      Swal.fire('Aviso', 'Por favor selecciona el motivo del reporte', 'warning');
+      return;
+    }
+
+    try {
+      await addDoc(collection(this.firestore, 'reports'), {
+        recipeId: recipeId,
+        recipeTitle: recipeTitle,
+        reason: this.reportReason,
+        date: new Date().toISOString()
+      });
+      Swal.fire('Reporte Enviado', 'Los administradores revisarán esta receta lo antes posible.', 'success');
+      this.closeReportModal();
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'Hubo un problema al enviar tu reporte', 'error');
+    }
+  }
+
   downloadPDF() { window.print(); }
 }

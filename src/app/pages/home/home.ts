@@ -1,4 +1,4 @@
-import { Component, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -7,13 +7,15 @@ import {
   orderBy,
   limit,
   doc,
+  docData,
+  where,
   updateDoc,
   increment,
   arrayUnion
 } from '@angular/fire/firestore';
 import { AsyncPipe, NgFor, NgIf, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Observable, map, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, map, BehaviorSubject, combineLatest, switchMap, of, Subscription } from 'rxjs';
 import { Recipe } from '../../models/recipe.model';
 import { register } from 'swiper/element/bundle';
 import { AuthService } from '../../services/auth';
@@ -29,26 +31,30 @@ register();
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService);
   private firestore = inject(Firestore);
 
   // Observables para el HTML
   user$: Observable<User | null> = this.authService.user$;
-  featuredRecipes$: Observable<Recipe[]>;
-  tip$: Observable<any>;
-  titles$: Observable<string[]>;
+  featuredRecipes$!: Observable<Recipe[]>;
+  followingRecipes$!: Observable<any[]>;
+  tip$!: Observable<any>;
+  titles$!: Observable<string[]>;
 
   // Lógica de Buscador y Filtros
-  private allRecipes$: Observable<Recipe[]>;
+  private allRecipes$!: Observable<Recipe[]>;
   searchTerm$ = new BehaviorSubject<string>('');
   categoryFilter$ = new BehaviorSubject<string>('');
 
-  filteredRecipes$: Observable<Recipe[]>;
-  searchResults$: Observable<Recipe[]>;
-  recipes$: Observable<Recipe[]>;
+  filteredRecipes$!: Observable<Recipe[]>;
+  searchResults$!: Observable<Recipe[]>;
+  recipes$!: Observable<Recipe[]>;
 
   currentUserData: any = null;
+  windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+
+  private userSub!: Subscription;
 
   categoryStyles: { [key: string]: string } = {
     'tecnica': 'bg-blue-50 border-blue-100 text-blue-800',
@@ -66,19 +72,27 @@ export class HomeComponent {
     'https://cdn-icons-png.flaticon.com/512/3143/3143643.png'
   ];
 
-  constructor() {
+  ngOnInit() {
+    // Escuchar el tamaño de la pantalla de forma responsiva y segura
+    if (typeof window !== 'undefined') {
+      this.windowWidth = window.innerWidth;
+      window.addEventListener('resize', () => {
+        this.windowWidth = window.innerWidth;
+      });
+    }
+
     const recipesCol = collection(this.firestore, 'recipes');
 
-    // Suscripción a datos de usuario
-    this.authService.user$.subscribe(user => {
+    // 🛠️ CONTROLADOR SEGURO: Escucha al usuario e inicializa el estado pase lo que pase
+    this.userSub = this.authService.user$.subscribe(user => {
       if (user) {
         this.authService.getUserData(user.uid).subscribe((data: any) => {
-          this.currentUserData = data;
+          this.currentUserData = data || { role: 'user' };
         });
+      } else {
+        this.currentUserData = null; // Si es invitado, explícitamente es null de inmediato
       }
     });
-
-    // --- FIX: Uso de query() para evitar error de tipo en Firebase 11 ---
 
     // 1. Recetas Destacadas
     const featuredQuery = query(recipesCol, orderBy('views', 'desc'), limit(4));
@@ -87,31 +101,52 @@ export class HomeComponent {
     // 2. Todas las Recetas (Base para filtros)
     const allQuery = query(recipesCol);
     this.allRecipes$ = collectionData(allQuery, { idField: 'id' }) as Observable<Recipe[]>;
+    this.recipes$ = this.allRecipes$;
 
-    // 3. Lógica de filtrado por categoría
+    // 3. Feed Social Protegido
+    this.followingRecipes$ = this.authService.user$.pipe(
+      switchMap(user => {
+        if (!user) return of([]);
+        return docData(doc(this.firestore, `users/${user.uid}`));
+      }),
+      switchMap((userData: any) => {
+        const followingIds = userData?.following || [];
+        if (followingIds.length === 0) return of([]);
+
+        const limitedIds = followingIds.slice(0, 30);
+        const q = query(recipesCol, where('uid', 'in', limitedIds));
+
+        return collectionData(q, { idField: 'id' }).pipe(
+          map((recipes: any[]) =>
+            recipes.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+          )
+        );
+      })
+    );
+
+    // 4. Lógica de filtrado por categoría
     this.filteredRecipes$ = combineLatest([this.allRecipes$, this.categoryFilter$]).pipe(
       map(([recipes, category]) => {
+        if (!recipes) return [];
         if (!category) return recipes;
         return recipes.filter(r => r.category === category);
       })
     );
 
-    // Mantenemos recipes$ sincronizado con el grid
-    this.recipes$ = this.filteredRecipes$;
-
-    // 4. Lógica de buscador (Dropdown)
+    // 5. Lógica de buscador (Dropdown)
     this.searchResults$ = combineLatest([this.allRecipes$, this.searchTerm$]).pipe(
       map(([recipes, term]) => {
+        if (!recipes) return [];
         const cleanTerm = term.toLowerCase().trim();
         if (!cleanTerm) return [];
         return recipes.filter(r =>
-          r.title.toLowerCase().includes(cleanTerm) ||
-          r.category?.toLowerCase().includes(cleanTerm)
+          (r.title && r.title.toLowerCase().includes(cleanTerm)) ||
+          (r.category && r.category.toLowerCase().includes(cleanTerm))
         ).slice(0, 5);
       })
     );
 
-    // 5. Tip del Día (Corregido con query)
+    // 6. Tip del Día
     const tipsCol = collection(this.firestore, 'tips');
     const tipsQuery = query(tipsCol);
     this.tip$ = collectionData(tipsQuery, { idField: 'id' }).pipe(
@@ -122,38 +157,32 @@ export class HomeComponent {
       })
     );
 
-    this.titles$ = this.featuredRecipes$.pipe(map(recipes => recipes.map(r => r.title)));
+    // Títulos para el efecto typing del Hero
+    this.titles$ = this.featuredRecipes$.pipe(
+      map(recipes => recipes && recipes.length > 0 ? recipes.map(r => r.title) : ['Chefly'])
+    );
   }
 
-  // --- MÉTODOS DE APOYO ---
+  ngOnDestroy() {
+    if (this.userSub) this.userSub.unsubscribe();
+  }
 
   getRandomPhrase(recipeTitle: string): string {
-    const phrases = [
-      `Chefly hoy te recomienda comer: ${recipeTitle}`,
-      `¿No se te antoja hoy ${recipeTitle}?`,
-      `Dale un gusto a tu paladar con: ${recipeTitle}`
-    ];
-    const index = recipeTitle.length % phrases.length;
+    const phrases = [`Chefly hoy te recomienda comer: ${recipeTitle}`, `¿No se te antoja hoy ${recipeTitle}?`, `Dale un gusto a tu paladar con: ${recipeTitle}`];
+    const index = recipeTitle ? recipeTitle.length % phrases.length : 0;
     return phrases[index];
   }
 
-  onSearch(event: any) {
-    this.searchTerm$.next(event.target.value);
-  }
-
-  filterByCategory(category: string) {
-    this.categoryFilter$.next(this.categoryFilter$.value === category ? '' : category);
-  }
+  onSearch(event: any) { this.searchTerm$.next(event.target.value); }
+  filterByCategory(category: string) { this.categoryFilter$.next(this.categoryFilter$.value === category ? '' : category); }
 
   getDifficultyStyle(difficulty: string | undefined | null): string {
     if (!difficulty) return 'bg-gray-100 text-gray-800 border-gray-200';
     const diff = difficulty.toLowerCase();
-    if (diff.includes('fácil')) return 'bg-green-100 text-green-800 border-green-200';
-    if (diff.includes('intermedio')) return 'bg-amber-100 text-amber-800 border-amber-200';
+    if (diff.includes('fácil') || diff.includes('facil')) return 'bg-green-100 text-green-800 border-green-200';
+    if (diff.includes('intermedio') || diff.includes('media')) return 'bg-amber-100 text-amber-800 border-amber-200';
     return 'bg-red-100 text-red-800 border-red-200';
   }
-
-  // --- LÓGICA DE REACCIONES Y COMENTARIOS (FIX ERRORES TS2339) ---
 
   getSavedReaction(tipId: string): string | null {
     const reactedTips = JSON.parse(localStorage.getItem('reactedTips') || '{}');
@@ -161,37 +190,37 @@ export class HomeComponent {
   }
 
   async reactToTip(tipId: string, type: string) {
+    if (!this.currentUserData) {
+      this.login();
+      return;
+    }
     const reactedTips = JSON.parse(localStorage.getItem('reactedTips') || '{}');
     if (reactedTips[tipId]) return;
-    const tipRef = doc(this.firestore, 'tips', tipId);
     try {
-      await updateDoc(tipRef, { [`reactions.${type}`]: increment(1) });
+      await updateDoc(doc(this.firestore, 'tips', tipId), { [`reactions.${type}`]: increment(1) });
       reactedTips[tipId] = type;
       localStorage.setItem('reactedTips', JSON.stringify(reactedTips));
-    } catch (e) { console.error("Error al reaccionar:", e); }
+    } catch (e) { console.error(e); }
   }
 
   async addComment(tipId: string, commentInput: HTMLInputElement) {
+    if (!this.currentUserData) {
+      this.login();
+      return;
+    }
     const text = commentInput.value.trim();
     if (!text) return;
-    const tipRef = doc(this.firestore, 'tips', tipId);
     try {
-      await updateDoc(tipRef, {
-        comments: arrayUnion({
-          userName: this.currentUserData?.displayName || 'Cocinero Chefly',
-          text: text,
-          date: new Date().toISOString()
-        })
+      await updateDoc(doc(this.firestore, 'tips', tipId), {
+        comments: arrayUnion({ userName: this.currentUserData?.displayName || 'Cocinero Chefly', text: text, date: new Date().toISOString() })
       });
       commentInput.value = '';
-    } catch (e) { console.error("Error al comentar:", e); }
+    } catch (e) { console.error(e); }
   }
 
   async trackView(recipeId: string | undefined) {
     if (!recipeId) return;
-    const recipeRef = doc(this.firestore, 'recipes', recipeId);
-    try { await updateDoc(recipeRef, { views: increment(1) }); }
-    catch (e) { console.error(e); }
+    try { await updateDoc(doc(this.firestore, 'recipes', recipeId), { views: increment(1) }); } catch (e) { console.error(e); }
   }
 
   login() { this.authService.loginWithGoogle(); }

@@ -2,7 +2,7 @@
 
   <div class="max-w-5xl mx-auto px-6 pt-8 flex justify-between items-center action-buttons">
 
-    <a routerLink="/" class="flex items-center gap-2 text-gray-600 dark:text-dark-secondary hover:text-chefly-orange font-bold transition-colors">
+    <a routerLink="/" class="flex items-center gap-2 text-gray-600 dark:text-dark-secondary hover:text-chefly-orange font-bold transition-colors cursor-pointer">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       Volver
     </a>
@@ -10,7 +10,7 @@
     <div class="flex items-center gap-3" *ngIf="canEditOrDelete(recipe)">
 
       <a [routerLink]="['/editar-receta', recipe.id]"
-         class="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold rounded-xl border border-blue-200 dark:border-blue-800/30 hover:bg-blue-600 hover:text-white transition-all shadow-sm hover:scale-105">
+         class="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold rounded-xl border border-blue-200 dark:border-blue-800/30 hover:bg-blue-600 hover:text-white transition-all shadow-sm hover:scale-105 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
@@ -18,7 +18,7 @@
       </a>
 
       <button (click)="deleteRecipe(recipe.id)"
-              class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold rounded-xl border border-red-200 dark:border-red-800/30 hover:bg-red-600 hover:text-white transition-all shadow-sm hover:scale-105">
+              class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold rounded-xl border border-red-200 dark:border-red-800/30 hover:bg-red-600 hover:text-white transition-all shadow-sm hover:scale-105 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
@@ -60,13 +60,14 @@
         <span class="bg-gray-100 dark:bg-dark-bg text-gray-700 dark:text-dark-text px-5 py-2.5 rounded-2xl text-sm font-black border dark:border-dark-border">👁️ {{ recipe.views }} vistas</span>
       </div>
 
-      <div class="flex items-center gap-6 pt-10 border-t dark:border-dark-border mb-10">
+      <div class="flex items-center gap-6 pt-10 border-t dark:border-dark-border mb-10 cursor-pointer hover:opacity-75 transition-opacity"
+           [routerLink]="['/perfil', recipe.uid || recipe.userId]">
         <img [src]="getUserImage(recipe.uid || recipe.userId, recipe.authorPhoto)"
-             class="w-20 h-20 rounded-3xl object-cover shadow-xl border-4 border-white dark:border-dark-card bg-white">
+             class="w-20 h-20 rounded-3xl object-cover shadow-xl border-4 border-white dark:border-dark-card bg-white hover:scale-105 transition-transform">
         <div>
-          <p class="text-2xl font-black text-gray-900 dark:text-dark-text">{{ recipe.authorName || 'Autor Chefly' }}</p>
+          <p class="text-2xl font-black text-gray-900 dark:text-dark-text hover:underline">{{ recipe.authorName || 'Autor Chefly' }}</p>
           <p class="text-chefly-orange font-bold text-sm uppercase tracking-tighter">
-             Recetas publicadas: {{ authorRecipeCount }}
+             Ver perfil y recetas publicadas ({{ authorRecipeCount }})
           </p>
         </div>
       </div>
@@ -122,30 +123,40 @@
     </div>
 
     <div *ngIf="activeTab === 'comments'" class="space-y-8 animate-fadeIn action-buttons">
-      <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border dark:border-dark-border" *ngIf="authService.user$ | async as user">
-          <div class="flex gap-4">
-              <img [src]="getUserImage(user.uid, user.photoURL)"
-                   class="w-12 h-12 rounded-full border-2 border-chefly-orange shadow-lg object-cover bg-white">
-              <div class="flex-1 relative">
-                  <textarea [(ngModel)]="newComment"
-                            placeholder="Comenta tu experiencia..."
-                            class="w-full p-5 bg-gray-50 dark:bg-dark-bg rounded-[1.5rem] outline-none border-none focus:ring-2 focus:ring-chefly-orange text-lg dark:text-dark-text"
-                            rows="3"></textarea>
-                  <button (click)="addComment(recipe.id!)"
-            class="absolute bottom-4 right-4 w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-xl shadow-orange-500/40 hover:scale-110 active:scale-95 transition-all z-10">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 rotate-45 -translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-    </button>
-              </div>
+
+  <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border dark:border-dark-border" *ngIf="authService.user$ | async as user; else loginToComment">
+      <div class="flex gap-4">
+          <img [src]="getUserImage(user.uid, user.photoURL)" class="w-12 h-12 rounded-full border-2 border-chefly-orange shadow-lg object-cover bg-white">
+          <div class="flex-1 relative">
+              <textarea [(ngModel)]="newComment" placeholder="Comenta tu experiencia..." class="w-full p-5 bg-gray-50 dark:bg-dark-bg rounded-[1.5rem] outline-none border-none focus:ring-2 focus:ring-chefly-orange text-lg dark:text-dark-text" rows="3"></textarea>
+              <button (click)="addComment(recipe.id!)" class="absolute bottom-4 right-4 w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-xl shadow-orange-500/40 hover:scale-110 active:scale-95 transition-all z-10 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 rotate-45 -translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+              </button>
           </div>
       </div>
+  </div>
+
+  <ng-template #loginToComment>
+    <div class="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border dark:border-dark-border text-center">
+      <span class="text-4xl block mb-3">🔒</span>
+      <h4 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">¿Quieres dejar un comentario o calificar?</h4>
+      <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1 mb-6">Únete a nuestra comunidad de chefs</p>
+      <button (click)="authService.loginWithGoogle()" class="bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30 hover:scale-105 transition-all px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest cursor-pointer">
+        Iniciar Sesión con Google
+      </button>
+    </div>
+  </ng-template>
 
       <div class="space-y-4">
           <div *ngFor="let comment of recipe.comments" class="bg-white dark:bg-dark-card rounded-3xl p-6 shadow-sm border dark:border-dark-border flex gap-4 animate-fadeIn">
-              <img [src]="getUserImage(comment.uid, comment.photoURL)" class="w-12 h-12 rounded-full object-cover shadow-md bg-white border border-gray-100">
+
+              <img [src]="getUserImage(comment.uid, comment.photoURL)"
+                   [routerLink]="comment.uid ? ['/perfil', comment.uid] : null"
+                   class="w-12 h-12 rounded-full object-cover shadow-md bg-white border border-gray-100 cursor-pointer hover:border-chefly-orange transition-colors">
+
               <div>
-                  <p class="font-black dark:text-dark-text">
+                  <p class="font-black dark:text-dark-text cursor-pointer hover:text-chefly-orange hover:underline transition-colors w-max"
+                     [routerLink]="comment.uid ? ['/perfil', comment.uid] : null">
                     {{ comment.userName }}
                     <span class="text-[10px] text-gray-400 font-bold ml-2 uppercase italic">{{ comment.date | date:'short' }}</span>
                   </p>
@@ -222,23 +233,24 @@
       </div>
     </div>
   </main>
-</div>
 
-<div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-dark-bg/80 backdrop-blur-xl p-4 animate-fadeIn">
-    <div class="bg-white dark:bg-dark-card rounded-[3rem] shadow-2xl max-w-md w-full p-10 relative border dark:border-dark-border">
-        <button (click)="closeReportModal()" class="absolute top-8 right-8 text-gray-400 hover:text-gray-600">✕</button>
-        <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-red-100 dark:bg-red-900/20 text-red-500 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-4 rotate-3">🚩</div>
-            <h3 class="text-3xl font-black text-gray-900 dark:text-dark-text tracking-tighter italic">Reportar Receta</h3>
-        </div>
-        <form (submit)="submitReport()" class="space-y-4">
-            <label class="flex items-center gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold">
-                <input type="radio" name="r" class="accent-red-500 w-5 h-5"> Contenido inapropiado
-            </label>
-            <label class="flex items-center gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold">
-                <input type="radio" name="r" class="accent-red-500 w-5 h-5"> Plagio o copia
-            </label>
-            <button type="submit" class="w-full bg-red-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-red-500/30 hover:bg-red-600 transition-all mt-6 uppercase tracking-widest text-sm">Enviar reporte</button>
-        </form>
-    </div>
+  <div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-dark-bg/80 backdrop-blur-xl p-4 animate-fadeIn">
+      <div class="bg-white dark:bg-dark-card rounded-[3rem] shadow-2xl max-w-md w-full p-10 relative border dark:border-dark-border">
+          <button (click)="closeReportModal()" class="absolute top-8 right-8 text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
+          <div class="text-center mb-8">
+              <div class="w-20 h-20 bg-red-100 dark:bg-red-900/20 text-red-500 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-4 rotate-3">🚩</div>
+              <h3 class="text-3xl font-black text-gray-900 dark:text-dark-text tracking-tighter italic">Reportar Receta</h3>
+          </div>
+          <form (submit)="submitReport(recipe.id!, recipe.title)" class="space-y-4">
+              <label class="flex items-center gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold">
+                  <input type="radio" name="reason" [(ngModel)]="reportReason" value="Contenido inapropiado" class="accent-red-500 w-5 h-5 cursor-pointer"> Contenido inapropiado
+              </label>
+              <label class="flex items-center gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold">
+                  <input type="radio" name="reason" [(ngModel)]="reportReason" value="Plagio o copia" class="accent-red-500 w-5 h-5 cursor-pointer"> Plagio o copia
+              </label>
+              <button type="submit" class="w-full bg-red-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-red-500/30 hover:bg-red-600 transition-all mt-6 uppercase tracking-widest text-sm cursor-pointer">Enviar reporte</button>
+          </form>
+      </div>
+  </div>
+
 </div>

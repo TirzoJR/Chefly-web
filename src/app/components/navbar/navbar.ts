@@ -1,35 +1,44 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink,RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth';
-
+import { Firestore, collection, query, orderBy, limit, collectionData } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink,RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html'
 })
 export class NavbarComponent implements OnInit {
   public authService = inject(AuthService);
   private router = inject(Router);
-currentUserData: any = null;
+  private firestore = inject(Firestore);
+
+  currentUserData: any = null;
   user$ = this.authService.user$;
 
-  // Estados de Accesibilidad
+  latestMessage$: Observable<any[]> | undefined;
+  dismissedMessageId: string | null = null; // 👈 NUEVO: Variable para recordar qué mensaje cerramos
+
   isDarkMode = false;
   showAccessMenu = false;
   fontSize: 'small' | 'medium' | 'large' = 'medium';
 
   ngOnInit() {
-    // 1. Cargar preferencias guardadas al iniciar
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.fontSize = (localStorage.getItem('fontSize') as any) || 'medium';
 
-    // 2. Aplicar configuraciones al DOM
+    // 👈 NUEVO: Leemos si el usuario ya había cerrado el último mensaje
+    this.dismissedMessageId = localStorage.getItem('dismissedMessageId');
+
     this.applyTheme();
     this.applyFontSize();
+
+    // 👈 IMPORTANTE: Le agregamos { idField: 'id' } para poder identificar el mensaje
+    const messagesQuery = query(collection(this.firestore, 'globalMessages'), orderBy('date', 'desc'), limit(1));
+    this.latestMessage$ = collectionData(messagesQuery, { idField: 'id' }) as Observable<any[]>;
 
     this.authService.user$.subscribe(user => {
       if (user) {
@@ -37,9 +46,15 @@ currentUserData: any = null;
           this.currentUserData = data;
         });
       } else {
-        this.currentUserData = null; // Si se desloguea, borramos los datos
+        this.currentUserData = null;
       }
     });
+  }
+
+  // 👈 NUEVA FUNCIÓN: Para ocultar el mensaje y recordarlo
+  dismissMessage(id: string) {
+    this.dismissedMessageId = id;
+    localStorage.setItem('dismissedMessageId', id);
   }
 
   // --- MÉTODOS DE TEMA ---
@@ -50,14 +65,13 @@ currentUserData: any = null;
   }
 
   private applyTheme() {
-    const root = document.documentElement; // Esto selecciona la etiqueta <html>
+    const root = document.documentElement;
     if (this.isDarkMode) {
       root.classList.add('dark');
-      // Esto elimina cualquier "espacio en blanco" que Tailwind no alcance a cubrir
       document.body.style.backgroundColor = 'oklch(0.145 0 0)';
     } else {
       root.classList.remove('dark');
-      document.body.style.backgroundColor = '#F8FAFC'; // chefly.gray
+      document.body.style.backgroundColor = '#F8FAFC';
     }
   }
 
@@ -70,7 +84,7 @@ currentUserData: any = null;
     this.fontSize = size;
     localStorage.setItem('fontSize', size);
     this.applyFontSize();
-    this.showAccessMenu = false; // Cerrar menú al elegir
+    this.showAccessMenu = false;
   }
 
   private applyFontSize() {
