@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const recipesCol = collection(this.firestore, 'recipes');
 
-    // 🛠️ CONTROLADOR SEGURO: Escucha al usuario e inicializa el estado pase lo que pase
+    
     this.userSub = this.authService.user$.subscribe(user => {
       if (user) {
         this.authService.getUserData(user.uid).subscribe((data: any) => {

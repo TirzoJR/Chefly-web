@@ -16,7 +16,7 @@ import { ChartComponent } from 'ng-apexcharts';
 export class AdminDashboardComponent implements OnInit {
   private firestore = inject(Firestore);
 
-  // Variables de UI (Agregamos la pestaña 'messages')
+  // Variables de UI 
   activeTab: 'dashboard' | 'users' | 'recipes' | 'reports' | 'messages' = 'dashboard';
   isSidebarOpen = true;
 
@@ -37,7 +37,7 @@ export class AdminDashboardComponent implements OnInit {
   reports$!: Observable<any[]>;
   users$!: Observable<any[]>;
   recipes$!: Observable<any[]>;
-  messages$!: Observable<any[]>; // 👈 Para el historial de mensajes
+  messages$!: Observable<any[]>;
 
   // Variables para las gráficas
   chartOptionsLine: any;
@@ -161,7 +161,7 @@ export class AdminDashboardComponent implements OnInit {
     await deleteDoc(doc(this.firestore, `reports/${reportId}`));
   }
 
-  // --- CONFIGURACIÓN DE LAS GRÁFICAS (ApexCharts) ---
+  // --- CONFIGURACIÓN DE LAS GRÁFICAS ---
   setupCharts() {
     this.chartOptionsLine = {
       series: [{ name: "Usuarios", data: [0,0,0,0,0,0] }, { name: "Recetas", data: [0,0,0,0,0,0] }],

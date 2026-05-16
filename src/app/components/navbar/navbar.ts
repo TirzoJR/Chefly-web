@@ -20,7 +20,7 @@ export class NavbarComponent implements OnInit {
   user$ = this.authService.user$;
 
   latestMessage$: Observable<any[]> | undefined;
-  dismissedMessageId: string | null = null; // 👈 NUEVO: Variable para recordar qué mensaje cerramos
+  dismissedMessageId: string | null = null; 
 
   isDarkMode = false;
   showAccessMenu = false;
@@ -30,13 +30,13 @@ export class NavbarComponent implements OnInit {
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.fontSize = (localStorage.getItem('fontSize') as any) || 'medium';
 
-    // 👈 NUEVO: Leemos si el usuario ya había cerrado el último mensaje
+
     this.dismissedMessageId = localStorage.getItem('dismissedMessageId');
 
     this.applyTheme();
     this.applyFontSize();
 
-    // 👈 IMPORTANTE: Le agregamos { idField: 'id' } para poder identificar el mensaje
+    // 👈 IMPORTANTE: Le agregamos
     const messagesQuery = query(collection(this.firestore, 'globalMessages'), orderBy('date', 'desc'), limit(1));
     this.latestMessage$ = collectionData(messagesQuery, { idField: 'id' }) as Observable<any[]>;
 

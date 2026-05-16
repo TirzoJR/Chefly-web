@@ -60,10 +60,10 @@ export class CatalogComponent implements OnInit {
     ]).pipe(
       map(([recipes, search, category, difficulty, sort]) => {
 
-        // --- Actualizamos contadores de categorías visuales ---
+
         this.updateCategoryCounts(recipes);
 
-        // --- APLICAMOS FILTROS ---
+
         let result = recipes;
 
         // Búsqueda por texto (título, autor o descripción)
@@ -89,13 +89,13 @@ export class CatalogComponent implements OnInit {
         // --- APLICAMOS ORDENAMIENTO ---
         result = [...result].sort((a, b) => {
           switch (sort) {
-            case 'popular': // Más populares (vistas)
+            case 'popular':
               return (b.views || 0) - (a.views || 0);
-            case 'rating': // Mejor calificadas
+            case 'rating':
               return (b.rating || 0) - (a.rating || 0);
-            case 'time': // Menor tiempo
+            case 'time':
               return (a.time || 999) - (b.time || 999);
-            case 'recent': // Más recientes (por defecto)
+            case 'recent':
             default:
               return b.createdAt - a.createdAt;
           }
@@ -107,7 +107,7 @@ export class CatalogComponent implements OnInit {
     );
   }
 
-  // --- MÉTODOS DE UI ---
+
 
   onSearchChange(event: any) {
     this.searchTerm$.next(event.target.value);
@@ -115,7 +115,7 @@ export class CatalogComponent implements OnInit {
 
   selectCategory(categoryName: string) {
     this.selectedCategory$.next(categoryName);
-    // Hacemos scroll suave a los resultados
+
     document.getElementById('resultados')?.scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -132,7 +132,7 @@ export class CatalogComponent implements OnInit {
     this.selectedDifficulty$.next('Todas');
     this.sortBy$.next('recent');
 
-    // Limpiar el input visualmente
+
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
     if(searchInput) searchInput.value = '';
   }
@@ -141,14 +141,14 @@ export class CatalogComponent implements OnInit {
     this.viewMode = mode;
   }
 
-  // Auxiliar para contar recetas por categoría
+
   private updateCategoryCounts(recipes: any[]) {
     this.categories.forEach(cat => {
       cat.count = recipes.filter(r => r.category === cat.name).length;
     });
   }
 
-  // Auxiliar para estilos de dificultad
+  
   getDifficultyColor(diff: string): string {
     switch(diff?.toLowerCase()) {
       case 'fácil': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200';

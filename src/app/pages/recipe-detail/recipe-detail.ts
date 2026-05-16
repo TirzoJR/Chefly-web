@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import {
-  addDoc // 👈 IMPORTANTE: Agregamos addDoc para poder guardar el reporte
+  addDoc
   ,
   arrayUnion,
   collection,
@@ -40,7 +40,7 @@ export class RecipeDetailComponent implements OnInit {
   newComment = '';
   showReportModal = false;
 
-  // 👈 NUEVO: Variable para saber por qué reportaron la receta
+
   reportReason: string = '';
 
   recipe$: Observable<any> | undefined;
@@ -210,7 +210,7 @@ if (!this.currentUserData) {
     this.reportReason = ''; // Limpiamos la razón al cerrar
   }
 
-  // 👈 NUEVO: Función de reporte actualizada conectada a Firebase
+
   async submitReport(recipeId: string, recipeTitle: string) {
     if (!this.reportReason) {
       Swal.fire('Aviso', 'Por favor selecciona el motivo del reporte', 'warning');
