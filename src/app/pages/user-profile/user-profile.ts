@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router'; // 👈 Agregamos ActivatedRoute
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
 import {
@@ -11,15 +11,13 @@ import {
   collectionData,
   doc,
   updateDoc,
+  setDoc,
   docData,
-  getDocs,
   arrayUnion,
   arrayRemove,
-  documentId,
-  getCountFromServer
+  documentId
 } from '@angular/fire/firestore';
-import { Observable, switchMap, of, Subscription, tap, combineLatest, map } from 'rxjs'; // 👈 combineLatest y map
-import { User } from '@angular/fire/auth';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -31,142 +29,162 @@ import Swal from 'sweetalert2';
 export class UserProfileComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService);
   private firestore = inject(Firestore);
-  private route = inject(ActivatedRoute); // 👈 Para leer el :id de la URL
+  private route = inject(ActivatedRoute);
+  private injector = inject(Injector);
 
   activeTab: 'info' | 'recipes' | 'favorites' | 'settings' | 'network' = 'info';
   isDarkMode = false;
   fontSize: 'small' | 'medium' | 'large' = 'medium';
-  isEditingBio: boolean = false;
-  bioText: string = '';
+  isEditingBio = false;
+  bioText = '';
 
-  currentUserData: any = null; // Quien está usando la app
-  profileData: any = null;     // De quién es el perfil que estamos viendo
-  private userSub?: Subscription;
+  currentUserData: any = null;
+  profileData: any = null;
 
-  recipesCount: number = 0;
-  followersCount: number = 0;
-  followingCount: number = 0;
-  favoritesCount: number = 0;
-  tipReactionsCount: number = 0;
-
-  totalViews: number = 0;
-  totalLikes: number = 0;
+  recipesCount = 0;
+  followersCount = 0;
+  followingCount = 0;
+  favoritesCount = 0;
+  tipReactionsCount = 0;
+  totalViews = 0;
+  totalLikes = 0;
 
   user$ = this.authService.user$;
 
-  // 👈 NUEVO: Lógica que decide qué ID usar (el de la URL o el tuyo)
-  targetUid$ = this.route.paramMap.pipe(
-    switchMap(params => {
-      const routeId = params.get('id');
-      if (routeId) {
-        return of(routeId); // No esperamos a nadie, cargamos el perfil del autor
-      } else {
-        return this.user$.pipe(map(user => user?.uid || null));
-      }
-    })
-  );
+  userData$ = new BehaviorSubject<any>(null);
+  myRecipes$ = new BehaviorSubject<any[]>([]);
+  favoriteRecipes$ = new BehaviorSubject<any[]>([]);
+  followersUsers$ = new BehaviorSubject<any[]>([]);
+  followingUsers$ = new BehaviorSubject<any[]>([]);
 
-  // 1. Datos del perfil que estamos viendo
-  userData$: Observable<any> = this.targetUid$.pipe(
-    switchMap(uid => {
-      if (!uid) return of(null);
-      return docData(doc(this.firestore, `users/${uid}`)).pipe(
-        // 👈 EL TRUCO MAGICO: Si Firebase no encuentra al usuario, creamos uno "fantasma"
-        // para que la página no se quede cargando al infinito.
-        map(data => data || {
-          uid: uid,
-          displayName: 'Chef Desconocido',
-          email: 'Este perfil no tiene datos o fue eliminado',
-          photoURL: 'https://cdn-icons-png.flaticon.com/512/1404/1404945.png'
-        })
-      );
-    }),
-    tap(data => this.profileData = data)
-  );
-
-  // 2. Recetas del perfil
-  myRecipes$: Observable<any[]> = this.targetUid$.pipe(
-    switchMap(uid => {
-      if (!uid) return of([]);
-      const q = query(collection(this.firestore, 'recipes'), where('uid', '==', uid));
-      return collectionData(q, { idField: 'id' });
-    }),
-    tap(recipes => {
-      this.totalViews = recipes.reduce((sum, r) => sum + (r.views || 0), 0);
-      this.totalLikes = recipes.reduce((sum, r) => sum + (r.ratingCount || r.rating || 0), 0);
-    })
-  );
-
-  // 3. Favoritos del perfil
-  favoriteRecipes$: Observable<any[]> = this.userData$.pipe(
-    switchMap(data => {
-      const favIds = data?.favorites || [];
-      if (favIds.length === 0) return of([]);
-      const limitedIds = favIds.slice(0, 30);
-      const q = query(collection(this.firestore, 'recipes'), where(documentId(), 'in', limitedIds));
-      return collectionData(q, { idField: 'id' });
-    })
-  );
-
-  // 4. Seguidores
-  followersUsers$: Observable<any[]> = this.userData$.pipe(
-    switchMap(data => {
-      const followerIds = data?.followers || [];
-      if (followerIds.length === 0) return of([]);
-      const q = query(collection(this.firestore, 'users'), where(documentId(), 'in', followerIds.slice(0, 30)));
-      return collectionData(q, { idField: 'uid' });
-    })
-  );
-
-  // 5. Siguiendo
-  followingUsers$: Observable<any[]> = this.userData$.pipe(
-    switchMap(data => {
-      const followingIds = data?.following || [];
-      if (followingIds.length === 0) return of([]);
-      const q = query(collection(this.firestore, 'users'), where(documentId(), 'in', followingIds.slice(0, 30)));
-      return collectionData(q, { idField: 'uid' });
-    })
-  );
+  private mainSub = new Subscription();
+  private profileSubs = new Subscription();
 
   ngOnInit() {
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.fontSize = (localStorage.getItem('fontSize') as any) || 'medium';
     this.applyTheme();
 
-    // Saber quién está logueado para la lógica de Seguir
-    this.userSub = this.authService.user$.subscribe(user => {
-      if (user) {
-        docData(doc(this.firestore, `users/${user.uid}`)).subscribe(data => {
-          this.currentUserData = data;
-        });
+    // 🛠️ 1. AUTO-CREACIÓN BLINDADA INSTANTÁNEA
+    this.mainSub.add(
+      this.authService.user$.subscribe(user => {
+        if (user) {
+          runInInjectionContext(this.injector, () => {
+            const sub = docData(doc(this.firestore, `users/${user.uid}`)).subscribe(async data => {
+              if (!data) {
+                // Si tienes sesión activa pero no tienes documento, lo crea al instante
+                const newProfile = {
+                  uid: user.uid,
+                  displayName: user.displayName || 'Chef',
+                  email: user.email,
+                  photoURL: user.photoURL || 'https://cdn-icons-png.flaticon.com/512/1404/1404945.png',
+                  bio: '¡Hola! Soy nuevo en Chefly.',
+                  role: 'user',
+                  favorites: [],
+                  followers: [],
+                  following: [],
+                  createdAt: new Date().toISOString()
+                };
+                try {
+                  await setDoc(doc(this.firestore, `users/${user.uid}`), newProfile);
+                  this.currentUserData = newProfile;
+                } catch (e) {
+                  console.error('Error auto-creando perfil:', e);
+                }
+              } else {
+                this.currentUserData = data;
+              }
+            });
+            this.mainSub.add(sub);
+          });
+          const localReactions = JSON.parse(localStorage.getItem('reactedTips') || '{}');
+          this.tipReactionsCount = Object.keys(localReactions).length;
+        }
+      })
+    );
 
-        const localReactions = JSON.parse(localStorage.getItem('reactedTips') || '{}');
-        this.tipReactionsCount = Object.keys(localReactions).length;
-      }
-    });
-
-    // Actualizar contadores cuando el perfil cambia
-    this.userData$.subscribe(data => {
-      if (data) {
-        if (data.bio) this.bioText = data.bio;
-        this.favoritesCount = data.favorites?.length || 0;
-        this.followersCount = data.followers?.length || 0;
-        this.followingCount = data.following?.length || 0;
-
-        // Contar recetas
-        const q = query(collection(this.firestore, 'recipes'), where('uid', '==', data.uid));
-        getCountFromServer(q).then(snapshot => {
-          this.recipesCount = snapshot.data().count;
-        }).catch(e => console.error(e));
-      }
-    });
+    // 2. Control de carga de perfiles
+    this.mainSub.add(
+      this.route.paramMap.subscribe(params => {
+        const routeId = params.get('id');
+        if (routeId) {
+          this.loadProfileData(routeId);
+        } else {
+          this.authService.user$.subscribe(user => {
+            if (user) this.loadProfileData(user.uid);
+          });
+        }
+      })
+    );
   }
 
   ngOnDestroy() {
-    if (this.userSub) this.userSub.unsubscribe();
+    this.mainSub.unsubscribe();
+    this.profileSubs.unsubscribe();
   }
 
-  // --- LÓGICA DE SEGUIDORES (NUEVO) ---
+  private loadProfileData(uid: string) {
+    this.profileSubs.unsubscribe();
+    this.profileSubs = new Subscription();
+
+    runInInjectionContext(this.injector, () => {
+      // A. Sincronización de Perfil
+      const userSub = docData(doc(this.firestore, `users/${uid}`)).subscribe((data: any) => {
+        const profile = data || {
+          uid: uid,
+          displayName: 'Cargando Chef...',
+          email: 'Sincronizando datos...',
+          photoURL: 'https://cdn-icons-png.flaticon.com/512/1404/1404945.png',
+          favorites: [], followers: [], following: []
+        };
+
+        this.profileData = profile;
+        this.userData$.next(profile);
+
+        if (profile.bio) this.bioText = profile.bio;
+        this.favoritesCount = profile.favorites?.length || 0;
+        this.followersCount = profile.followers?.length || 0;
+        this.followingCount = profile.following?.length || 0;
+
+        if (profile.favorites && profile.favorites.length > 0) {
+          const qFav = query(collection(this.firestore, 'recipes'), where(documentId(), 'in', profile.favorites.slice(0, 30)));
+          this.profileSubs.add(collectionData(qFav, { idField: 'id' }).subscribe(favs => this.favoriteRecipes$.next(favs)));
+        } else {
+          this.favoriteRecipes$.next([]);
+        }
+
+        if (profile.followers && profile.followers.length > 0) {
+          const qFol = query(collection(this.firestore, 'users'), where(documentId(), 'in', profile.followers.slice(0, 30)));
+          this.profileSubs.add(collectionData(qFol, { idField: 'uid' }).subscribe(fols => this.followersUsers$.next(fols)));
+        } else {
+          this.followersUsers$.next([]);
+        }
+
+        if (profile.following && profile.following.length > 0) {
+          const qFwi = query(collection(this.firestore, 'users'), where(documentId(), 'in', profile.following.slice(0, 30)));
+          this.profileSubs.add(collectionData(qFwi, { idField: 'uid' }).subscribe(fwis => this.followingUsers$.next(fwis)));
+        } else {
+          this.followingUsers$.next([]);
+        }
+      });
+      this.profileSubs.add(userSub);
+
+      // B. Búsqueda de Recetas (Busca por el campo 'uid')
+      const qRecipes = query(collection(this.firestore, 'recipes'), where('uid', '==', uid));
+      const recipesSub = collectionData(qRecipes, { idField: 'id' }).subscribe((recipes: any[]) => {
+        this.myRecipes$.next(recipes);
+        this.recipesCount = recipes.length;
+        this.totalViews = recipes.reduce((sum, r) => sum + (r.views || 0), 0);
+        this.totalLikes = recipes.reduce((sum, r) => sum + (r.ratingCount || r.rating || 0), 0);
+      });
+      this.profileSubs.add(recipesSub);
+    });
+  }
+
+  // ==========================================
+  // MÉTODOS VISUALES Y ACCIONES
+  // ==========================================
+
   get isMyProfile(): boolean {
     if (!this.currentUserData || !this.profileData) return false;
     return this.currentUserData.uid === this.profileData.uid;
@@ -183,10 +201,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       Swal.fire('Inicia sesión', 'Debes iniciar sesión para seguir chefs.', 'info');
       return;
     }
-
     const profileRef = doc(this.firestore, `users/${this.profileData.uid}`);
     const currentUserRef = doc(this.firestore, `users/${this.currentUserData.uid}`);
-
     try {
       if (this.isFollowing) {
         await updateDoc(profileRef, { followers: arrayRemove(this.currentUserData.uid) });
@@ -200,7 +216,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- RESTO DE MÉTODOS VISUALES (Se mantienen igual) ---
   getDifficultyStyle(difficulty: string | undefined | null): string {
     if (!difficulty) return 'bg-gray-100 text-gray-800 border-gray-200';
     const diff = difficulty.toLowerCase().trim();
@@ -260,6 +275,4 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       return 'U';
     }
   }
-
-
 }

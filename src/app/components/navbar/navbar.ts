@@ -3,7 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth';
-import { Firestore, collection, query, orderBy, limit, collectionData } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+  collectionData
+} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-navbar',
@@ -12,6 +19,7 @@ import { Firestore, collection, query, orderBy, limit, collectionData } from '@a
   templateUrl: './navbar.html'
 })
 export class NavbarComponent implements OnInit {
+
   public authService = inject(AuthService);
   private router = inject(Router);
   private firestore = inject(Firestore);
@@ -20,25 +28,27 @@ export class NavbarComponent implements OnInit {
   user$ = this.authService.user$;
 
   latestMessage$: Observable<any[]> | undefined;
-  dismissedMessageId: string | null = null; 
+  dismissedMessageId: string | null = null;
 
   isDarkMode = false;
   showAccessMenu = false;
+  showLogoutModal = false;
+
   fontSize: 'small' | 'medium' | 'large' = 'medium';
+
+  constructor() {
+    // 🛠️ Poner esto en el constructor arregla el error automáticamente
+    const messagesQuery = query(collection(this.firestore, 'globalMessages'), orderBy('date', 'desc'), limit(1));
+    this.latestMessage$ = collectionData(messagesQuery, { idField: 'id' }) as Observable<any[]>;
+  }
 
   ngOnInit() {
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
-    this.fontSize = (localStorage.getItem('fontSize') as any) || 'medium';
-
-
+    this.fontSize = (localStorage.getItem('fontSize') as 'small' | 'medium' | 'large') || 'medium';
     this.dismissedMessageId = localStorage.getItem('dismissedMessageId');
 
     this.applyTheme();
     this.applyFontSize();
-
-    // 👈 IMPORTANTE: Le agregamos
-    const messagesQuery = query(collection(this.firestore, 'globalMessages'), orderBy('date', 'desc'), limit(1));
-    this.latestMessage$ = collectionData(messagesQuery, { idField: 'id' }) as Observable<any[]>;
 
     this.authService.user$.subscribe(user => {
       if (user) {
@@ -51,13 +61,35 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  // 👈 NUEVA FUNCIÓN: Para ocultar el mensaje y recordarlo
   dismissMessage(id: string) {
     this.dismissedMessageId = id;
     localStorage.setItem('dismissedMessageId', id);
   }
 
-  // --- MÉTODOS DE TEMA ---
+  toggleAccessMenu() {
+    this.showAccessMenu = !this.showAccessMenu;
+  }
+
+  setFontSize(size: 'small' | 'medium' | 'large') {
+    this.fontSize = size;
+    localStorage.setItem('fontSize', size);
+    this.applyFontSize();
+    this.showAccessMenu = false;
+  }
+
+  private applyFontSize() {
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      if (this.fontSize === 'small') {
+        root.style.cssText += 'font-size: 13px !important;';
+      } else if (this.fontSize === 'large') {
+        root.style.cssText += 'font-size: 25px !important;';
+      } else {
+        root.style.cssText += 'font-size: 16px !important;';
+      }
+    }
+  }
+
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
     localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
@@ -75,36 +107,11 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  // --- MÉTODOS DE TEXTO ---
-  toggleAccessMenu() {
-    this.showAccessMenu = !this.showAccessMenu;
-  }
-
-  setFontSize(size: 'small' | 'medium' | 'large') {
-    this.fontSize = size;
-    localStorage.setItem('fontSize', size);
-    this.applyFontSize();
-    this.showAccessMenu = false;
-  }
-
-  private applyFontSize() {
-    const root = document.documentElement;
-    const sizes = {
-      small: '14px',
-      medium: '16px',
-      large: '20px'
-    };
-    root.style.fontSize = sizes[this.fontSize];
-  }
-
-  // --- NAVEGACIÓN ---
-  goToProfile() {
-    this.router.navigate(['/profile']);
-  }
-
-  logout() {
-    if (window.confirm("¿Estás seguro de que quieres cerrar sesión?")) {
-      this.authService.logout();
-    }
+  goToProfile() { this.router.navigate(['/profile']); }
+  logout() { this.showLogoutModal = true; }
+  closeLogoutModal() { this.showLogoutModal = false; }
+  confirmLogout() {
+    this.showLogoutModal = false;
+    this.authService.logout();
   }
 }

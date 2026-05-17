@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Firestore, collection, getCountFromServer, query, collectionData, deleteDoc, doc, updateDoc, orderBy, limit, addDoc } from '@angular/fire/firestore';
@@ -15,12 +15,11 @@ import { ChartComponent } from 'ng-apexcharts';
 })
 export class AdminDashboardComponent implements OnInit {
   private firestore = inject(Firestore);
+  private injector = inject(Injector);
 
-  // Variables de UI 
   activeTab: 'dashboard' | 'users' | 'recipes' | 'reports' | 'messages' = 'dashboard';
   isSidebarOpen = true;
 
-  // Estadísticas Globales
   totalUsers = 0;
   activeUsers = 0;
   totalRecipes = 0;
@@ -29,85 +28,105 @@ export class AdminDashboardComponent implements OnInit {
   visitsToday = 0;
   totalViews = 0;
 
-  // Variables para Mensajes Globales
   newMessageTitle = '';
   newMessageBody = '';
 
-  // Observables para las tablas
   reports$!: Observable<any[]>;
   users$!: Observable<any[]>;
   recipes$!: Observable<any[]>;
   messages$!: Observable<any[]>;
 
-  // Variables para las gráficas
-  chartOptionsLine: any;
-  chartOptionsPie: any;
+  chartOptionsLine: any = null;
+  chartOptionsPie: any = null;
 
   async ngOnInit() {
-    this.setupCharts();
     await this.loadStats();
     this.loadTables();
   }
 
   async loadStats() {
     try {
-      const usersSnap = await getCountFromServer(collection(this.firestore, 'users'));
+      // 1. 🛠️ DISPARAMOS LAS PETICIONES SINCRÓNICAMENTE EN EL CONTEXTO (Sin usar "await" aquí adentro)
+      const usersPromise = runInInjectionContext(this.injector, () => getCountFromServer(collection(this.firestore, 'users')));
+      const recipesPromise = runInInjectionContext(this.injector, () => getCountFromServer(collection(this.firestore, 'recipes')));
+      const reportsPromise = runInInjectionContext(this.injector, () => getCountFromServer(collection(this.firestore, 'reports')));
+      const recipesObs$ = runInInjectionContext(this.injector, () => collectionData(query(collection(this.firestore, 'recipes'))));
+
+      // 2. 🛠️ LAS ESPERAMOS AFUERA DEL CONTEXTO PARA NO ROMPER ANGULAR
+      const usersSnap = await usersPromise;
       this.totalUsers = usersSnap.data().count;
       this.activeUsers = Math.floor(this.totalUsers * 0.85);
 
-      const recipesSnap = await getCountFromServer(collection(this.firestore, 'recipes'));
+      const recipesSnap = await recipesPromise;
       this.totalRecipes = recipesSnap.data().count;
 
-      const reportsSnap = await getCountFromServer(collection(this.firestore, 'reports'));
+      const reportsSnap = await reportsPromise;
       this.pendingReports = reportsSnap.data().count;
 
-      const recipesQuery = query(collection(this.firestore, 'recipes'));
-      collectionData(recipesQuery).subscribe((recipes: any[]) => {
+      // 3. ARMAMOS LAS GRÁFICAS (Suscripción normal)
+      recipesObs$.subscribe((recipes: any[]) => {
         this.totalViews = recipes.reduce((acc, curr) => acc + (curr.views || 0), 0);
         this.visitsToday = Math.floor(this.totalViews * 0.05);
 
-        const mockUsers = [120, 250, 400, 650, 890, this.totalUsers];
-        const mockRecipes = [50, 120, 300, 500, 800, this.totalRecipes];
+        const categoryCounts: { [key: string]: number } = {};
+        recipes.forEach(r => {
+          const cat = r.category || 'Otros';
+          categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+
+        this.chartOptionsPie = {
+          series: Object.values(categoryCounts).length > 0 ? Object.values(categoryCounts) : [1],
+          labels: Object.keys(categoryCounts).length > 0 ? Object.keys(categoryCounts) : ['Sin Datos'],
+          chart: { type: "donut", height: 350, fontFamily: 'inherit' },
+          colors: ['#A78BFA', '#C4B5FD', '#DDD6FE', '#F5D0FE', '#FBCFE8', '#FCE7F3'],
+          plotOptions: { pie: { donut: { size: '70%' } } },
+          dataLabels: { enabled: false },
+          legend: { position: 'bottom' }
+        };
+
+        const uData = this.totalUsers > 0 ? [0, Math.floor(this.totalUsers*0.2), Math.floor(this.totalUsers*0.5), Math.floor(this.totalUsers*0.8), this.totalUsers] : [0, 0, 0, 0, 0];
+        const rData = this.totalRecipes > 0 ? [0, Math.floor(this.totalRecipes*0.2), Math.floor(this.totalRecipes*0.5), Math.floor(this.totalRecipes*0.8), this.totalRecipes] : [0, 0, 0, 0, 0];
 
         this.chartOptionsLine = {
-          ...this.chartOptionsLine,
           series: [
-            { name: "Usuarios", data: mockUsers },
-            { name: "Recetas", data: mockRecipes }
-          ]
+            { name: "Usuarios", data: uData },
+            { name: "Recetas", data: rData }
+          ],
+          chart: { type: "area", height: 350, toolbar: { show: false }, fontFamily: 'inherit' },
+          colors: ['#8B5CF6', '#F97316'],
+          dataLabels: { enabled: false },
+          stroke: { curve: 'smooth', width: 3 },
+          fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] } },
+          xaxis: { categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May'] },
+          grid: { borderColor: '#f1f5f9', strokeDashArray: 4 }
         };
       });
-
     } catch (error) {
       console.error("Error cargando estadísticas VIP:", error);
     }
   }
 
   loadTables() {
-    // 1. Usuarios
-    const usersQuery = query(collection(this.firestore, 'users'), limit(50));
-    this.users$ = collectionData(usersQuery, { idField: 'uid' }) as Observable<any[]>;
+    runInInjectionContext(this.injector, () => {
+      const usersQuery = query(collection(this.firestore, 'users'), limit(50));
+      this.users$ = collectionData(usersQuery, { idField: 'uid' }) as Observable<any[]>;
 
-    // 2. Recetas
-    const recipesQuery = query(collection(this.firestore, 'recipes'), orderBy('views', 'desc'), limit(50));
-    this.recipes$ = collectionData(recipesQuery, { idField: 'id' }) as Observable<any[]>;
+      const recipesQuery = query(collection(this.firestore, 'recipes'), orderBy('views', 'desc'), limit(50));
+      this.recipes$ = collectionData(recipesQuery, { idField: 'id' }) as Observable<any[]>;
 
-    // 3. Reportes
-    const reportsQuery = query(collection(this.firestore, 'reports'));
-    this.reports$ = collectionData(reportsQuery, { idField: 'id' }) as Observable<any[]>;
+      const reportsQuery = query(collection(this.firestore, 'reports'));
+      this.reports$ = collectionData(reportsQuery, { idField: 'id' }) as Observable<any[]>;
 
-    // 4. Mensajes Globales
-    const messagesQuery = query(collection(this.firestore, 'globalMessages'), orderBy('date', 'desc'));
-    this.messages$ = collectionData(messagesQuery, { idField: 'id' }) as Observable<any[]>;
+      const messagesQuery = query(collection(this.firestore, 'globalMessages'), orderBy('date', 'desc'));
+      this.messages$ = collectionData(messagesQuery, { idField: 'id' }) as Observable<any[]>;
+    });
   }
 
-  // --- MÉTODOS DE MENSAJES GLOBALES ---
   async sendGlobalMessage() {
     if (!this.newMessageTitle.trim() || !this.newMessageBody.trim()) {
       Swal.fire('Campos vacíos', 'Por favor llena el título y el mensaje.', 'warning');
       return;
     }
-
     try {
       await addDoc(collection(this.firestore, 'globalMessages'), {
         title: this.newMessageTitle,
@@ -124,7 +143,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // --- MÉTODOS DE USUARIOS ---
   async deleteUser(uid: string, name: string) {
     const res = await Swal.fire({ title: `¿Borrar a ${name}?`, text: "Esto no se puede deshacer", icon: 'warning', showCancelButton: true });
     if (res.isConfirmed) {
@@ -139,7 +157,6 @@ export class AdminDashboardComponent implements OnInit {
     Swal.fire('Rol Actualizado', `El usuario ahora es ${newRole}.`, 'success');
   }
 
-  // --- MÉTODOS DE RECETAS Y REPORTES ---
   async deleteRecipe(recipeId: string) {
     const res = await Swal.fire({ title: '¿Borrar receta?', text: "Se eliminará para siempre", icon: 'warning', showCancelButton: true });
     if (res.isConfirmed) {
@@ -159,29 +176,5 @@ export class AdminDashboardComponent implements OnInit {
 
   async ignoreReport(reportId: string) {
     await deleteDoc(doc(this.firestore, `reports/${reportId}`));
-  }
-
-  // --- CONFIGURACIÓN DE LAS GRÁFICAS ---
-  setupCharts() {
-    this.chartOptionsLine = {
-      series: [{ name: "Usuarios", data: [0,0,0,0,0,0] }, { name: "Recetas", data: [0,0,0,0,0,0] }],
-      chart: { type: "area", height: 350, toolbar: { show: false }, fontFamily: 'inherit' },
-      colors: ['#8B5CF6', '#F97316'],
-      dataLabels: { enabled: false },
-      stroke: { curve: 'smooth', width: 3 },
-      fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] } },
-      xaxis: { categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'] },
-      grid: { borderColor: '#f1f5f9', strokeDashArray: 4 }
-    };
-
-    this.chartOptionsPie = {
-      series: [26, 21, 19, 15, 11, 8],
-      chart: { type: "donut", height: 350, fontFamily: 'inherit' },
-      labels: ['Comida', 'Cena', 'Postre', 'Desayuno', 'Bebida', 'Snack'],
-      colors: ['#A78BFA', '#C4B5FD', '#DDD6FE', '#F5D0FE', '#FBCFE8', '#FCE7F3'],
-      plotOptions: { pie: { donut: { size: '70%' } } },
-      dataLabels: { enabled: false },
-      legend: { position: 'bottom' }
-    };
   }
 }

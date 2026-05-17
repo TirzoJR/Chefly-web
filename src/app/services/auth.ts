@@ -1,13 +1,13 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Router } from '@angular/router';
-import { Firestore, doc, docData } from '@angular/fire/firestore'; 
-import { 
-  Auth, 
-  authState, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut, 
-  User 
+import { Firestore, doc, docData } from '@angular/fire/firestore';
+import {
+  Auth,
+  authState,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  User
 } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
@@ -15,26 +15,26 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  
+
   private auth = inject(Auth);
   private router = inject(Router);
-  private firestore = inject(Firestore); // <--- ESTA LÍNEA ES VITAL
+  private firestore = inject(Firestore);
+  private injector = inject(Injector); // 👈 Inyectamos el Injector
 
-  // Observable que contiene al usuario (o null si no está logueado)
-  readonly user$: Observable<User | null> = authState(this.auth);
+  readonly user$: Observable<User | null>;
 
-  constructor() { }
-
-  /**
-   * Obtiene los datos del perfil desde la colección 'users' de Firestore
-   * @param uid ID único del usuario
-   */
-  getUserData(uid: string): Observable<any> {
-    const userRef = doc(this.firestore, `users/${uid}`);
-    return docData(userRef);
+  constructor() {
+    this.user$ = authState(this.auth);
   }
 
-  // 1. Iniciar sesión con Google
+  getUserData(uid: string): Observable<any> {
+    // 🛠️ Usamos la función envolvente correcta para que TypeScript no marque error
+    return runInInjectionContext(this.injector, () => {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      return docData(userRef);
+    });
+  }
+
   async loginWithGoogle() {
     try {
       const provider = new GoogleAuthProvider();
@@ -44,17 +44,15 @@ export class AuthService {
     }
   }
 
-  // 2. Cerrar sesión
   async logout() {
     try {
       await signOut(this.auth);
-      this.router.navigate(['/']); 
+      this.router.navigate(['/']);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
   }
 
-  // 3. Obtener el usuario actual (síncrono)
   getCurrentUser(): User | null {
     return this.auth.currentUser;
   }

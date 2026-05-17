@@ -4,30 +4,30 @@
          [ngClass]="{'translate-x-0': isSidebarOpen, '-translate-x-full fixed h-full z-50': !isSidebarOpen, 'hidden md:flex': !isSidebarOpen}">
 
     <div class="p-8 flex items-center justify-between border-b border-gray-50 dark:border-gray-800">
-      <h2 class="text-3xl font-black italic text-chefly-orange tracking-tighter">Chefly<span class="text-gray-900 dark:text-white">VIP</span></h2>
-      <button (click)="isSidebarOpen = false" class="md:hidden text-gray-500 text-xl font-bold">✕</button>
+      <h2 class="text-3xl font-black italic text-orange-500 tracking-tighter">Chefly<span class="text-gray-900 dark:text-white">VIP</span></h2>
+      <button (click)="isSidebarOpen = false" class="md:hidden text-gray-500 text-xl font-bold cursor-pointer">✕</button>
     </div>
 
     <nav class="flex-1 px-4 py-6 space-y-3">
-      <button (click)="activeTab = 'dashboard'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'dashboard', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'dashboard'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+      <button (click)="activeTab = 'dashboard'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'dashboard', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'dashboard'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide cursor-pointer">
         <span class="text-xl">📊</span> Resumen
       </button>
-      <button (click)="activeTab = 'users'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'users', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'users'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+      <button (click)="activeTab = 'users'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'users', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'users'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide cursor-pointer">
         <span class="text-xl">👥</span> Usuarios
       </button>
-      <button (click)="activeTab = 'recipes'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'recipes', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'recipes'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+      <button (click)="activeTab = 'recipes'" [ngClass]="{'bg-orange-50 text-orange-600 dark:bg-orange-900/20': activeTab === 'recipes', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'recipes'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide cursor-pointer">
         <span class="text-xl">🥘</span> Recetas
       </button>
-      <button (click)="activeTab = 'reports'" [ngClass]="{'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': activeTab === 'reports', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'reports'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+      <button (click)="activeTab = 'reports'" [ngClass]="{'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400': activeTab === 'reports', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'reports'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide cursor-pointer">
         <span class="text-xl">🚩</span> Moderación
       </button>
-      <button (click)="activeTab = 'messages'" [ngClass]="{'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400': activeTab === 'messages', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'messages'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide">
+      <button (click)="activeTab = 'messages'" [ngClass]="{'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400': activeTab === 'messages', 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-400': activeTab !== 'messages'}" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all text-sm tracking-wide cursor-pointer">
         <span class="text-xl">📢</span> Mensajes Globales
       </button>
     </nav>
 
     <div class="p-6 border-t border-gray-50 dark:border-gray-800">
-      <a routerLink="/" class="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-chefly-orange transition-colors">
+      <a routerLink="/" class="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-orange-500 transition-colors">
         ← Volver a Chefly
       </a>
     </div>
@@ -36,7 +36,7 @@
   <main class="flex-1 h-screen overflow-y-auto p-4 md:p-10 w-full relative">
 
     <div class="mb-10 flex items-center gap-4">
-      <button (click)="isSidebarOpen = !isSidebarOpen" class="p-3 bg-white dark:bg-[#1E293B] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 md:hidden">
+      <button (click)="isSidebarOpen = !isSidebarOpen" class="p-3 bg-white dark:bg-[#1E293B] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 md:hidden cursor-pointer">
         <svg class="w-6 h-6 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
       </button>
       <div>
@@ -56,7 +56,7 @@
             </div>
             <div>
               <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ totalUsers }}</p>
-              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +12% este mes</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">Comunidad activa</p>
             </div>
           </div>
           <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
@@ -66,7 +66,7 @@
             </div>
             <div>
               <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ activeUsers }}</p>
-              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +8% este mes</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">Estimación ~85%</p>
             </div>
           </div>
           <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
@@ -76,7 +76,7 @@
             </div>
             <div>
               <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ totalRecipes }}</p>
-              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +156 semana</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">Platillos creados</p>
             </div>
           </div>
           <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
@@ -86,47 +86,57 @@
             </div>
             <div>
               <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ pendingReports }}</p>
-              <p class="text-[11px] font-bold text-red-500 mt-2 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md inline-block">Pendientes</p>
+              <p class="text-[11px] font-bold text-red-500 mt-2 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md inline-block">Pendientes de revisión</p>
             </div>
           </div>
           <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center text-yellow-500 text-xl">⭐</div>
-              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Calificación</p>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Vistas Global</p>
             </div>
             <div>
-              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ avgRating }}</p>
-              <p class="text-[11px] font-bold text-gray-500 mt-2 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md inline-block">Promedio general</p>
+              <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ totalViews }}</p>
+              <p class="text-[11px] font-bold text-gray-500 mt-2 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md inline-block">Interacciones totales</p>
             </div>
           </div>
           <div class="bg-white dark:bg-[#1E293B] p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col justify-between h-full hover:-translate-y-1 transition-transform">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-500 text-xl">👁️</div>
-              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Visitas Hoy</p>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tráfico Hoy</p>
             </div>
             <div>
               <p class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{{ visitsToday }}</p>
-              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">↑ +15% vs ayer</p>
+              <p class="text-[11px] font-bold text-green-500 mt-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md inline-block">Estimación de vistas</p>
             </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
           <div class="lg:col-span-2 bg-white dark:bg-[#1E293B] p-8 rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none">
             <div class="mb-6">
               <h3 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Crecimiento de Usuarios y Recetas</h3>
-              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Últimos 6 meses</p>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Acumulado mensual</p>
             </div>
-            <apx-chart *ngIf="chartOptionsLine"
-              [series]="chartOptionsLine.series"
-              [chart]="chartOptionsLine.chart"
-              [xaxis]="chartOptionsLine.xaxis"
-              [stroke]="chartOptionsLine.stroke"
-              [dataLabels]="chartOptionsLine.dataLabels"
-              [fill]="chartOptionsLine.fill"
-              [colors]="chartOptionsLine.colors"
-              [grid]="chartOptionsLine.grid">
-            </apx-chart>
+            <ng-container *ngIf="chartOptionsLine && totalUsers > 0; else loadingLine">
+  <apx-chart
+    [series]="chartOptionsLine.series"
+    [chart]="chartOptionsLine.chart"
+    [xaxis]="chartOptionsLine.xaxis"
+    [stroke]="chartOptionsLine.stroke"
+    [dataLabels]="chartOptionsLine.dataLabels"
+    [fill]="chartOptionsLine.fill"
+    [colors]="chartOptionsLine.colors"
+    [grid]="chartOptionsLine.grid">
+  </apx-chart>
+</ng-container>
+
+<ng-template #loadingLine>
+  <div class="h-[350px] w-full flex flex-col items-center justify-center text-gray-400">
+    <span class="text-4xl animate-pulse mb-3">📈</span>
+    <p class="text-xs font-bold uppercase tracking-widest animate-pulse">Obteniendo métricas o esperando registros...</p>
+  </div>
+</ng-template>
           </div>
 
           <div class="bg-white dark:bg-[#1E293B] p-8 rounded-[2rem] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-none flex flex-col">
@@ -134,16 +144,24 @@
               <h3 class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Distribución por Categoría</h3>
               <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Total de recetas</p>
             </div>
-            <div class="flex-1 flex items-center justify-center">
-              <apx-chart *ngIf="chartOptionsPie" class="w-full"
-                [series]="chartOptionsPie.series"
-                [chart]="chartOptionsPie.chart"
-                [labels]="chartOptionsPie.labels"
-                [colors]="chartOptionsPie.colors"
-                [plotOptions]="chartOptionsPie.plotOptions"
-                [dataLabels]="chartOptionsPie.dataLabels"
-                [legend]="chartOptionsPie.legend">
-              </apx-chart>
+            <div class="flex-1 flex items-center justify-center w-full">
+              <ng-container *ngIf="chartOptionsPie; else loadingPie">
+  <apx-chart class="w-full"
+    [series]="chartOptionsPie.series"
+    [chart]="chartOptionsPie.chart"
+    [labels]="chartOptionsPie.labels"
+    [colors]="chartOptionsPie.colors"
+    [plotOptions]="chartOptionsPie.plotOptions"
+    [dataLabels]="chartOptionsPie.dataLabels"
+    [legend]="chartOptionsPie.legend">
+  </apx-chart>
+</ng-container>
+              <ng-template #loadingPie>
+                <div class="flex flex-col items-center justify-center text-gray-400 h-[300px]">
+                  <span class="text-4xl animate-pulse mb-3">🍕</span>
+                  <p class="text-xs font-bold uppercase tracking-widest animate-pulse">Calculando platillos...</p>
+                </div>
+              </ng-template>
             </div>
           </div>
         </div>
@@ -153,7 +171,7 @@
         <div class="bg-white dark:bg-[#1E293B] rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
           <div class="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
             <h3 class="text-xl font-black dark:text-white tracking-tighter">Lista de Usuarios</h3>
-            <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">Top 50</span>
+            <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">Comunidad</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-max">
@@ -182,10 +200,10 @@
                   </td>
                   <td class="p-5 text-right">
                     <div class="flex justify-end gap-2">
-                      <button (click)="toggleAdminRole(user.uid, user.role)" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-blue-900/20 dark:text-blue-400">
+                      <button (click)="toggleAdminRole(user.uid, user.role)" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-blue-900/20 dark:text-blue-400 cursor-pointer">
                         {{ user.role === 'admin' ? 'Quitar VIP' : 'Hacer VIP' }}
                       </button>
-                      <button (click)="deleteUser(user.uid, user.displayName)" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-red-900/20 dark:text-red-400">
+                      <button (click)="deleteUser(user.uid, user.displayName)" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-red-900/20 dark:text-red-400 cursor-pointer">
                         Banear
                       </button>
                     </div>
@@ -231,7 +249,7 @@
                   </td>
                   <td class="p-5 text-right">
                     <a [routerLink]="['/recipe', recipe.id]" target="_blank" class="inline-block mr-2 px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-xs font-bold transition-colors dark:bg-gray-800 dark:text-gray-300">Ver</a>
-                    <button (click)="deleteRecipe(recipe.id)" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-red-900/20 dark:text-red-400">Eliminar</button>
+                    <button (click)="deleteRecipe(recipe.id)" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-colors dark:bg-red-900/20 dark:text-red-400 cursor-pointer">Eliminar</button>
                   </td>
                 </tr>
               </tbody>
@@ -270,10 +288,10 @@
                   </div>
 
                   <div class="flex gap-3 w-full lg:w-auto justify-end">
-                    <button (click)="ignoreReport(report.id)" class="flex-1 lg:flex-none px-6 py-3 bg-gray-50 dark:bg-[#1E293B] border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                    <button (click)="ignoreReport(report.id)" class="flex-1 lg:flex-none px-6 py-3 bg-gray-50 dark:bg-[#1E293B] border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm cursor-pointer">
                       Ignorar Alerta
                     </button>
-                    <button (click)="deleteReportedRecipe(report.recipeId, report.id)" class="flex-1 lg:flex-none px-6 py-3 bg-red-500 text-white rounded-2xl font-black shadow-lg shadow-red-500/30 hover:bg-red-600 transition-all active:scale-95">
+                    <button (click)="deleteReportedRecipe(report.recipeId, report.id)" class="flex-1 lg:flex-none px-6 py-3 bg-red-500 text-white rounded-2xl font-black shadow-lg shadow-red-500/30 hover:bg-red-600 transition-all active:scale-95 cursor-pointer">
                       Banear Receta
                     </button>
                   </div>
@@ -301,7 +319,7 @@
                 <textarea [(ngModel)]="newMessageBody" rows="4" placeholder="Escribe tu mensaje aquí..." class="w-full p-4 bg-gray-50 dark:bg-[#0F172A] rounded-2xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none text-sm dark:text-white transition-all"></textarea>
                 <p class="text-[10px] font-bold text-gray-400 mt-2 italic">Este mensaje será enviado a todos los usuarios registrados.</p>
               </div>
-              <button (click)="sendGlobalMessage()" class="w-full bg-gray-900 dark:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform uppercase tracking-widest text-xs flex justify-center items-center gap-2">
+              <button (click)="sendGlobalMessage()" class="w-full bg-gray-900 dark:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform uppercase tracking-widest text-xs flex justify-center items-center gap-2 cursor-pointer">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 Enviar a Todos los Usuarios
               </button>

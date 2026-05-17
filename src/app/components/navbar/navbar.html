@@ -1,82 +1,131 @@
-<nav class="bg-white dark:bg-dark-card border-b border-gray-100 dark:border-dark-border sticky top-0 z-50 transition-colors duration-300 flex flex-col">
+<nav class="bg-white dark:bg-dark-card border-b border-gray-100 dark:border-dark-border sticky top-0 z-50 transition-colors duration-300 flex flex-col w-full">
 
   <div *ngIf="latestMessage$ | async as messages" class="w-full">
     <div *ngIf="messages.length > 0 && messages[0].id !== dismissedMessageId"
-         class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 text-center text-xs md:text-sm font-bold shadow-md flex items-center justify-center gap-3 relative animate-fadeIn">
+      class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 text-center text-xs md:text-sm font-bold shadow-md flex items-center justify-center gap-3 relative animate-fadeIn">
 
       <span class="animate-pulse text-lg">📢</span>
-      <span class="uppercase tracking-widest text-[9px] md:text-[10px] bg-white/20 px-2 py-0.5 rounded-md">{{ messages[0].title }}</span>
-      <span class="italic font-medium pr-8">"{{ messages[0].body }}"</span>
 
-      <button (click)="dismissMessage(messages[0].id)" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white p-1 rounded-full hover:bg-white/20 transition-colors cursor-pointer">
+      <span class="uppercase tracking-widest text-[9px] md:text-[10px] bg-white/20 px-2 py-0.5 rounded-md">
+        {{ messages[0].title }}
+      </span>
+
+      <span class="italic font-medium pr-8 truncate">
+        "{{ messages[0].body }}"
+      </span>
+
+      <button (click)="dismissMessage(messages[0].id)"
+        class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white p-1 rounded-full hover:bg-white/20 transition-colors cursor-pointer">
         ✕
       </button>
-
     </div>
   </div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between w-full">
-
-    <div class="flex-1 flex justify-start">
+<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-20 flex items-center justify-between w-full box-border gap-1 relative z-50">
+    <div class="flex-shrink-0 flex justify-start">
       <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
-          <line x1="6" y1="17" x2="18" y2="17"/>
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 text-orange-600 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" />
+          <line x1="6" y1="17" x2="18" y2="17" />
         </svg>
-        <span class="text-2xl font-bold text-gray-900 dark:text-dark-text hidden sm:block italic">Chefly</span>
+
+        <span class="text-2xl font-bold text-gray-900 dark:text-dark-text italic hidden sm:block">
+          Chefly
+        </span>
+
       </div>
     </div>
 
-    <div class="flex justify-center gap-2">
+    <div class="flex-1 flex items-center justify-start gap-1 sm:gap-2 overflow-x-auto scrollbar-hide px-1">
+
       <a routerLink="/"
-         routerLinkActive="text-orange-600 bg-orange-50 dark:bg-orange-900/10"
-         [routerLinkActiveOptions]="{exact: true}"
-         class="flex items-center gap-2 px-6 py-2 rounded-2xl text-gray-600 dark:text-dark-secondary hover:text-orange-600 transition-all font-bold group">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        routerLinkActive="text-orange-600 bg-orange-50 dark:bg-orange-900/10"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="flex items-center gap-2 px-3 py-2 md:px-6 md:py-2 rounded-2xl text-gray-600 dark:text-dark-secondary hover:text-orange-600 transition-all font-bold group shrink-0">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 group-hover:scale-110 transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
-        <span class="text-sm uppercase tracking-widest hidden md:block">Inicio</span>
+
+        <span class="text-sm uppercase tracking-widest hidden md:block">
+          Inicio
+        </span>
       </a>
 
       <a *ngIf="currentUserData?.role === 'admin'"
-         routerLink="/admin"
-         routerLinkActive="text-blue-600 bg-blue-50 dark:bg-blue-900/10"
-         class="flex items-center gap-2 px-6 py-2 rounded-2xl text-blue-400 dark:text-blue-500 hover:text-blue-600 transition-all font-bold group animate-fadeIn">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        routerLink="/admin"
+        routerLinkActive="text-blue-600 bg-blue-50 dark:bg-blue-900/10"
+        class="flex items-center gap-2 px-3 py-2 md:px-6 md:py-2 rounded-2xl text-blue-500 dark:text-blue-400 hover:text-blue-600 transition-all font-bold group shrink-0 animate-fadeIn">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 group-hover:scale-110 transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span class="text-sm uppercase tracking-widest hidden md:block">Panel VIP</span>
+
+        <span class="text-sm uppercase tracking-widest hidden md:block">
+          Panel VIP
+        </span>
       </a>
     </div>
 
-    <div class="flex-1 flex justify-end items-center gap-2 md:gap-4">
-      <button (click)="toggleDarkMode()" class="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-elevated transition-all">
-        <svg *ngIf="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    <div class="flex-shrink-0 flex items-center gap-1 sm:gap-2 justify-end relative z-[100]">
+
+      <button (click)="toggleDarkMode()"
+        class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-elevated transition-all cursor-pointer shrink-0">
+
+        <svg *ngIf="!isDarkMode"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 text-gray-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646A9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
-        <svg *ngIf="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+
+        <svg *ngIf="isDarkMode"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 text-yellow-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3" />
         </svg>
       </button>
 
-      <div class="relative">
-        <button (click)="toggleAccessMenu()" class="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-elevated text-blue-600 transition-all">
+      <div class="relative shrink-0 z-[180]">
+        <button (click)="toggleAccessMenu()"
+          class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-elevated text-blue-600 transition-all cursor-pointer flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           </svg>
         </button>
 
-        <div *ngIf="showAccessMenu" class="absolute right-0 mt-3 w-56 bg-white dark:bg-dark-elevated border dark:border-dark-border rounded-2xl shadow-2xl p-4 z-50 animate-fadeIn">
-          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 italic">Tamaño de lectura</p>
+        <div *ngIf="showAccessMenu" class="absolute right-0 mt-3 w-48 md:w-56 bg-white dark:bg-[#1E293B] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl p-3 md:p-4 z-[200] animate-fadeIn">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 italic px-2">Tamaño de lectura</p>
           <div class="grid grid-cols-1 gap-1">
-            <button (click)="setFontSize('small')" [class.bg-orange-50]="fontSize === 'small'" class="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <button (click)="setFontSize('small')" [class.bg-orange-50]="fontSize === 'small'" [class.dark:bg-orange-950/20]="fontSize === 'small'" class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
               <span>Pequeño</span> <span class="text-xs text-gray-400">A</span>
             </button>
-            <button (click)="setFontSize('medium')" [class.bg-orange-50]="fontSize === 'medium'" class="flex items-center justify-between w-full px-4 py-3 rounded-xl text-base font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <button (click)="setFontSize('medium')" [class.bg-orange-50]="fontSize === 'medium'" [class.dark:bg-orange-950/20]="fontSize === 'medium'" class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-base font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
               <span>Normal</span> <span class="text-sm text-gray-400">A+</span>
             </button>
-            <button (click)="setFontSize('large')" [class.bg-orange-50]="fontSize === 'large'" class="flex items-center justify-between w-full px-4 py-3 rounded-xl text-lg font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <button (click)="setFontSize('large')" [class.bg-orange-50]="fontSize === 'large'" [class.dark:bg-orange-950/20]="fontSize === 'large'" class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-lg font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
               <span>Grande</span> <span class="text-base text-gray-400">A++</span>
             </button>
           </div>
@@ -84,7 +133,8 @@
       </div>
 
       <ng-container *ngIf="user$ | async as user; else loginBtn">
-        <div class="flex items-center gap-4 cursor-pointer group" (click)="goToProfile()">
+
+        <div class="flex items-center gap-1 md:gap-4 cursor-pointer group flex-shrink-0 min-w-fit relative z-50" (click)="goToProfile()">
 
           <div class="hidden md:flex flex-col items-end">
             <span class="text-sm font-bold text-gray-900 dark:text-dark-text leading-none">
@@ -92,30 +142,34 @@
             </span>
 
             <div *ngIf="currentUserData?.role === 'admin'"
-                 class="flex items-center mt-1 bg-blue-600 text-white dark:bg-blue-500 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L10 6.477V16h2a1 1 0 110 2H8a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
-              </svg>
+              class="flex items-center mt-1 bg-blue-600 text-white px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm">
               Admin VIP
             </div>
           </div>
 
           <img [src]="user.photoURL || 'assets/default-avatar.png'"
-               class="h-10 w-10 rounded-full border-2 border-white dark:border-dark-border shadow-sm group-hover:border-orange-500 transition-all object-cover"
-               referrerpolicy="no-referrer"
-               alt="Foto de perfil">
+            class="h-9 w-9 min-w-[36px] min-h-[36px] md:h-10 md:w-10 rounded-full border-2 border-white dark:border-dark-border shadow-sm group-hover:border-orange-500 transition-all object-cover flex-shrink-0"
+            referrerpolicy="no-referrer"
+            alt="Foto de perfil">
         </div>
 
-        <button (click)="logout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        <button (click)="logout()"
+          class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors cursor-pointer shrink-0 relative z-50">
+
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" />
           </svg>
         </button>
+
       </ng-container>
 
       <ng-template #loginBtn>
         <button (click)="authService.loginWithGoogle()"
-                class="bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30 hover:scale-105 transition-all dark:bg-none dark:bg-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-bold text-sm">
+          class="bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg hover:scale-105 transition-all px-4 py-2 rounded-xl font-bold text-xs md:text-sm whitespace-nowrap cursor-pointer shrink-0 relative z-50">
           Entrar
         </button>
       </ng-template>
